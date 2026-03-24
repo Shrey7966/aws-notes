@@ -3,6 +3,7 @@ import Module1 from "./Module1";
 import Module2 from "./Module2";
 import Module3 from "./Module3";
 import Module4 from "./Module4";
+import Module5 from "./Module5";
 
 const accent = "#FF9900";
 
@@ -11,7 +12,7 @@ const modules = [
   { id: 2, emoji: "🖥️", title: "Module 2", subtitle: "Compute, Scaling & Messaging", topics: ["Amazon EC2", "Instance Types", "EC2 Pricing", "Auto Scaling", "ELB", "SQS · SNS · EventBridge"], color: "#FF9900", status: "complete", component: Module2 },
   { id: 3, emoji: "📦", title: "Module 3", subtitle: "Serverless, Containers & Compute", topics: ["AWS Lambda", "Containers vs VMs", "ECS & EKS", "AWS Fargate", "Beanstalk", "Outposts"], color: "#0f9d58", status: "complete", component: Module3 },
   { id: 4, emoji: "🌍", title: "Module 4", subtitle: "Global Infrastructure & IaC", topics: ["Regions & AZs", "Region Selection", "High Availability", "CloudFront", "Route 53", "CloudFormation"], color: "#6a1b9a", status: "complete", component: Module4 },
-  { id: 5, emoji: "🔒", title: "Module 5", subtitle: "Networking & Security", topics: ["VPC", "Subnets", "Security Groups", "NACLs", "WAF & Shield", "Direct Connect"], color: "#d32f2f", status: "coming", component: null },
+  { id: 5, emoji: "🔒", title: "Module 5", subtitle: "Networking & Security", topics: ["VPC", "Subnets", "Security Groups", "NACLs", "WAF & Shield", "Direct Connect"], color: "#d32f2f", status: "complete", component: Module5 },
   { id: 6, emoji: "💾", title: "Module 6", subtitle: "Storage", topics: ["Amazon S3", "EBS", "EFS", "S3 Classes", "Glacier", "Storage Gateway"], color: "#00838f", status: "coming", component: null },
   { id: 7, emoji: "🗃️", title: "Module 7", subtitle: "Databases", topics: ["RDS", "DynamoDB", "Aurora", "Redshift", "ElastiCache", "DMS"], color: "#e65100", status: "coming", component: null },
   { id: 8, emoji: "💰", title: "Module 8", subtitle: "Pricing, Support & Billing", topics: ["Pricing Models", "Cost Explorer", "Budgets", "Support Plans", "Trusted Advisor", "Free Tier"], color: "#2e7d32", status: "coming", component: null },
