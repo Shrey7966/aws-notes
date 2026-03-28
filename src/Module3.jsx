@@ -466,117 +466,401 @@ function SectionContent({ id }) {
         <H2>The Problem Containers Solve</H2>
         <BodyText>
           <b>"It works on my machine!"</b> — the most frustrating phrase in software development.
-          When a developer's laptop environment differs from staging or production, deployments fail.
-          Containers solve this by packaging <b>everything</b> the app needs into a single portable unit.
+          Containers fix this by packaging <b>everything your app needs</b> into one portable unit
+          that runs identically everywhere: your laptop, a test server, or AWS production.
         </BodyText>
-        <H2>What's Inside a Container?</H2>
-        <div style={{
-          background: "var(--color-background-secondary)", border: "1px solid var(--color-border-tertiary)",
-          borderRadius: 10, padding: 12, marginTop: 8,
-        }}>
+
+        {/* What's inside a container */}
+        <H2>🍱 What's Inside a Container?</H2>
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 6 }}>
+          <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.75)", marginBottom: 10, lineHeight: 1.6 }}>
+            Think of it like a <b style={{ color: accent }}>packed lunch box</b> — everything you need for the meal is inside. No searching around for extra ingredients.
+          </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
             {[
-              { icon: "💻", label: "Code", desc: "Your application source code" },
-              { icon: "⚙️", label: "Runtime", desc: "Node.js, Java JVM, Python interpreter" },
-              { icon: "📚", label: "Dependencies", desc: "Libraries, packages, frameworks" },
-              { icon: "🔧", label: "Configuration", desc: "Env variables, settings, config files" },
-            ].map(({ icon, label, desc }) => (
-              <div key={label} style={{
-                background: "#1a73e818", border: "1px solid #1a73e840",
-                borderRadius: 8, padding: "8px 10px", display: "flex", gap: 8,
-              }}>
-                <span style={{ fontSize: 18 }}>{icon}</span>
+              { icon: "🍔", label: "Code", color: "#1a73e8", desc: "Your actual application code" },
+              { icon: "⚙️", label: "Runtime", color: "#0f9d58", desc: "Node.js, Python, Java — the engine" },
+              { icon: "📦", label: "Dependencies", color: "#FF9900", desc: "Libraries, packages, frameworks" },
+              { icon: "🔧", label: "Config", color: "#6a1b9a", desc: "Env variables, settings, files" },
+            ].map(({ icon, label, color, desc }) => (
+              <div key={label} style={{ background: color + "20", border: `1px solid ${color}35`, borderRadius: 8, padding: "9px 11px", display: "flex", gap: 9 }}>
+                <span style={{ fontSize: 20 }}>{icon}</span>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8" }}>{label}</div>
-                  <div style={{ fontSize: 11, color: "var(--color-text-secondary)" }}>{desc}</div>
+                  <div style={{ fontWeight: 700, fontSize: 12, color }}>{label}</div>
+                  <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.7)", marginTop: 2 }}>{desc}</div>
                 </div>
               </div>
             ))}
           </div>
-          <div style={{ fontSize: 11, textAlign: "center", color: "var(--color-text-secondary)", marginTop: 8 }}>
-            📦 All bundled into one portable container image
+          <div style={{ marginTop: 10, textAlign: "center", fontSize: 12.5, color: accent, fontWeight: 700 }}>
+            👉 All bundled together so it runs the same anywhere
           </div>
         </div>
-        <H2>Containers vs Virtual Machines</H2>
-        <ContainerVsVMDiagram />
-        <KVTable rows={[
-          ["Startup time", "VMs: minutes (booting full OS). Containers: <b>seconds</b> (shared host OS)."],
-          ["Resource usage", "VMs: heavy (full OS per VM). Containers: <b>lightweight</b> (shared OS kernel)."],
-          ["Isolation", "VMs: complete OS isolation. Containers: process-level isolation (shared kernel)."],
-          ["Portability", "Both portable, but containers are more consistent across environments."],
-          ["Use case", "VMs: strong isolation needed. Containers: <b>microservices, fast deployments, consistency</b>."],
-        ]} />
-        <H2>Deployment Consistency</H2>
-        <DeploymentConsistencyDiagram />
-        <BodyText>
-          The same container image runs identically in QA, Staging, and Production.
-          No more environment-specific bugs. What passes QA will pass in Production.
-        </BodyText>
-        <Callout icon="🎯" label="Exam Tip"
-          text="Containers package code + runtime + dependencies + config. They are lighter and faster than VMs because they share the host OS. Docker is the most common containerization platform." />
-      </div>
-    );
 
-    case "orchestration": return (
-      <div>
-        <H2>Why You Need Orchestration</H2>
-        <BodyText>
-          A few containers on one host is manageable manually. But when you scale to hundreds of
-          containers across dozens of hosts, you need automation for: health monitoring, starting/stopping,
-          networking, updates, and scaling. That's what container orchestration does.
-        </BodyText>
-        <H2>The Scale Problem</H2>
-        <OrchestrationScaleDiagram />
-        <H2>AWS Container Services Architecture</H2>
-        <ContainerArchDiagram />
-        <H2>Amazon ECS — Elastic Container Service</H2>
-        <KVTable rows={[
-          ["What it is", "AWS-native container orchestration service. Manages Docker containers on a cluster."],
-          ["ECS + EC2", "You manage the EC2 fleet (VMs). ECS manages containers on top. <b>Full infrastructure control.</b>"],
-          ["ECS + Fargate", "Serverless. AWS manages the servers. You only manage containers. <b>No fleet to manage.</b>"],
-          ["Best for", "Teams wanting AWS-native simplicity. Small-to-medium businesses. Teams new to containers."],
-        ]} />
-        <H2>Amazon EKS — Elastic Kubernetes Service</H2>
-        <KVTable rows={[
-          ["What it is", "Managed Kubernetes service on AWS. Runs open-source Kubernetes clusters."],
-          ["Kubernetes", "Open-source platform that automates containerized app deployment, scaling, and management."],
-          ["EKS + EC2", "Full control over EC2 infrastructure + Kubernetes power. <b>Best for large-scale enterprise workloads.</b>"],
-          ["EKS + Fargate", "Kubernetes without managing servers. <b>Serverless Kubernetes.</b>"],
-          ["Best for", "Teams already using Kubernetes, large-scale or hybrid deployments, maximum flexibility."],
-        ]} />
-        <H2>Amazon ECR — Elastic Container Registry</H2>
-        <KVTable rows={[
-          ["What it is", "Fully managed container image registry. Like a private Docker Hub on AWS."],
-          ["Purpose", "Store, manage, and deploy container images securely."],
-          ["Integration", "Works natively with ECS and EKS. Supports OCI (Open Container Initiative) standards."],
-          ["How to use", "Build container image → push to ECR → orchestration service pulls from ECR → deploys."],
-        ]} />
-        <H2>ECS vs EKS — Quick Comparison</H2>
-        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid var(--color-border-tertiary)" }}>
-          {[["", "Amazon ECS", "Amazon EKS"],
-            ["Type", "AWS-native", "Managed Kubernetes"],
-            ["Learning curve", "Lower — simpler", "Higher — K8s knowledge needed"],
-            ["Flexibility", "Good for most use cases", "Maximum — open-source ecosystem"],
-            ["Best for", "AWS-focused teams, simplicity", "K8s expertise, hybrid/multi-cloud"],
+        {/* VM vs Container - the big idea */}
+        <H2>🆚 Containers vs Virtual Machines — The Big Idea</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 6 }}>
+          {/* VMs */}
+          <div style={{ border: "1px solid #d32f2f30", borderTop: "3px solid #d32f2f", borderRadius: 9, overflow: "hidden" }}>
+            <div style={{ background: "#d32f2f", padding: "9px 12px" }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>🖥️ Virtual Machines</div>
+              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.8)" }}>Each app = its own full computer</div>
+            </div>
+            <div style={{ padding: "10px 12px", background: "white" }}>
+              <div style={{ background: "#fce4ec", borderRadius: 7, padding: "8px 10px", marginBottom: 8, fontSize: 12.5, fontStyle: "italic", color: "#555" }}>
+                🧠 Like running multiple full laptops inside one big machine. Each laptop has its own OS, RAM, everything.
+              </div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#d32f2f", marginBottom: 5 }}>Each VM has:</div>
+              {["Its own complete Operating System", "Its own allocated RAM & CPU", "Minutes to start (booting OS)", "Heavy resource footprint"].map(p => (
+                <div key={p} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>• {p}</div>
+              ))}
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 4 }}>✅ When VMs win:</div>
+                {["Strong security isolation (banking)", "Need different OS (Linux + Windows)", "Legacy apps needing full OS access", "Full kernel/driver control"].map(p => (
+                  <div key={p} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {p}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+          {/* Containers */}
+          <div style={{ border: "1px solid #0f9d5830", borderTop: "3px solid #0f9d58", borderRadius: 9, overflow: "hidden" }}>
+            <div style={{ background: "#0f9d58", padding: "9px 12px" }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>📦 Containers</div>
+              <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.8)" }}>Apps share the OS, just isolated</div>
+            </div>
+            <div style={{ padding: "10px 12px", background: "white" }}>
+              <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px", marginBottom: 8, fontSize: 12.5, fontStyle: "italic", color: "#555" }}>
+                🧠 Like multiple apps on one phone — not multiple phones. They share the phone OS but can't see each other's data.
+              </div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>Each container has:</div>
+              {["Just your app + its dependencies", "Shared host OS kernel", "Seconds to start (no OS boot)", "Lightweight resource footprint"].map(p => (
+                <div key={p} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>• {p}</div>
+              ))}
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 4 }}>✅ When Containers win:</div>
+                {["Speed & scalability", "Microservices architecture", "Consistent deployments anywhere", "Cost-efficient at scale"].map(p => (
+                  <div key={p} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {p}</div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Side-by-side comparison table */}
+        <H2>⚖️ Feature Comparison</H2>
+        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 4 }}>
+          {[
+            ["Feature", "Virtual Machines 🖥️", "Containers 📦"],
+            ["OS", "Each has full OS", "Share host OS kernel"],
+            ["Start speed", "Minutes (OS boot)", "Seconds (no OS)"],
+            ["Size", "GB — heavy", "MB — lightweight"],
+            ["Isolation", "Strong (separate OS)", "Process-level (shared kernel)"],
+            ["Use case", "Full systems, legacy apps", "Microservices, fast deploys"],
+            ["AWS service", "Amazon EC2", "ECS, EKS (with Fargate)"],
           ].map((row, i) => (
             <div key={i} style={{
               display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
-              borderBottom: i < 4 ? "1px solid var(--color-border-tertiary)" : "none",
-              background: i === 0 ? "var(--color-background-secondary)" : i % 2 === 0 ? "var(--color-background-secondary)" : "var(--color-background-primary)",
+              borderBottom: i < 6 ? "1px solid #f0f0f0" : "none",
+              background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
             }}>
               {row.map((cell, j) => (
                 <div key={j} style={{
-                  padding: "7px 10px", fontSize: i === 0 ? 11 : 12,
+                  padding: "7px 10px", fontSize: i === 0 ? 11 : 12.5,
                   fontWeight: i === 0 || j === 0 ? 700 : 400,
-                  color: i === 0 ? accent : j === 0 ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-                  borderRight: j < 2 ? "1px solid var(--color-border-tertiary)" : "none",
+                  color: i === 0 ? ["#FF9900", "#ef9a9a", "#a5d6a7"][j] || accent
+                       : j === 0 ? "#333"
+                       : j === 1 ? "#d32f2f"
+                       : "#0f9d58",
+                  borderRight: j < 2 ? "1px solid #f0f0f0" : "none",
                 }}>{cell}</div>
               ))}
             </div>
           ))}
         </div>
+
+        {/* Real-world scenario */}
+        <H2>🎯 Real-World Example — 3 Apps</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 4 }}>
+          <div style={{ border: "1px solid #d32f2f30", borderRadius: 8, padding: "11px 13px" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#d32f2f", marginBottom: 8 }}>❌ With VMs — lots of duplication</div>
+            {[
+              ["App 1", "Full OS (3GB)"],
+              ["App 2", "Full OS (3GB)"],
+              ["App 3", "Full OS (3GB)"],
+            ].map(([app, os]) => (
+              <div key={app} style={{ background: "#fce4ec", borderRadius: 6, padding: "6px 10px", marginBottom: 5, display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "#d32f2f" }}>{app}</span>
+                <span style={{ fontSize: 11.5, color: "#888" }}>{os}</span>
+              </div>
+            ))}
+            <div style={{ fontSize: 11.5, color: "#d32f2f", marginTop: 6, textAlign: "center" }}>Total: ~9GB just for OS 😬</div>
+          </div>
+          <div style={{ border: "1px solid #0f9d5830", borderRadius: 8, padding: "11px 13px" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0f9d58", marginBottom: 8 }}>✅ With Containers — shared OS</div>
+            <div style={{ background: "#e8f5e9", borderRadius: 6, padding: "7px 10px", marginBottom: 5, textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "#888" }}>Shared Host OS</div>
+            </div>
+            {["App 1 (100MB)", "App 2 (80MB)", "App 3 (120MB)"].map(app => (
+              <div key={app} style={{ background: "#0f9d5818", border: "1px solid #0f9d5830", borderRadius: 6, padding: "6px 10px", marginBottom: 4, fontSize: 12, color: "#0f9d58", fontWeight: 600 }}>{app}</div>
+            ))}
+            <div style={{ fontSize: 11.5, color: "#0f9d58", marginTop: 5, textAlign: "center" }}>~300MB total. Much more efficient! 🚀</div>
+          </div>
+        </div>
+
+        {/* Why companies love containers */}
+        <H2>🔥 Why Companies Love Containers</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 7, marginTop: 4 }}>
+          {[
+            { icon: "🌍", text: "Deploy anywhere", sub: "Laptop, cloud, any server" },
+            { icon: "⚡", text: "Faster scaling", sub: "Seconds, not minutes" },
+            { icon: "🎯", text: "Consistent behavior", sub: "No 'works on my machine'" },
+            { icon: "🧩", text: "Microservices-ready", sub: "Each service in own container" },
+            { icon: "💰", text: "Cost efficient", sub: "More apps per server" },
+            { icon: "🔄", text: "Easy CI/CD", sub: "Build once, deploy everywhere" },
+          ].map(({ icon, text, sub }) => (
+            <div key={text} style={{ border: "1px solid #0f9d5820", borderRadius: 8, padding: "9px 10px", textAlign: "center", background: "#0f9d5806" }}>
+              <div style={{ fontSize: 22, marginBottom: 3 }}>{icon}</div>
+              <div style={{ fontWeight: 700, fontSize: 11.5, color: "#0f9d58" }}>{text}</div>
+              <div style={{ fontSize: 10.5, color: "#888", marginTop: 2 }}>{sub}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ background: "#263238", borderRadius: 9, padding: "10px 14px", marginTop: 10 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 6 }}>🧠 One-line takeaway</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", textAlign: "center" }}>
+              <span style={{ color: "#ef9a9a" }}>VM</span> = full computer per app
+            </div>
+            <div style={{ fontSize: 13, color: "rgba(255,255,255,0.85)", textAlign: "center" }}>
+              <span style={{ color: "#a5d6a7" }}>Container</span> = just the app, sharing the system
+            </div>
+          </div>
+        </div>
+
         <Callout icon="🎯" label="Exam Tip"
-          text="ECR = image storage. ECS = AWS-native orchestration. EKS = Kubernetes on AWS. Both ECS and EKS can run on EC2 (you manage VMs) or Fargate (serverless). Know which combinations exist." />
+          text="Containers = code + runtime + dependencies + config in one portable image. Lighter/faster than VMs because they share the host OS. VMs still win for strong isolation (different OS, legacy apps, compliance). Docker = most common container platform." />
+      </div>
+    );
+
+    case "orchestration": return (
+      <div>
+        <BodyText>
+          ECR, ECS, and EKS are all about <b>running and managing containers on AWS</b>.
+          ECR stores them, ECS/EKS run them. Once you understand what each one is, they click immediately.
+        </BodyText>
+
+        {/* Big picture flow */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 8 }}>🔗 The Typical Flow</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, justifyContent: "center", flexWrap: "wrap" }}>
+            {[
+              { step: "1", label: "Build app", icon: "💻", color: "#546e7a" },
+              { step: "→", label: "", icon: "", color: "transparent" },
+              { step: "2", label: "Docker image", icon: "🐋", color: "#1a73e8" },
+              { step: "→", label: "", icon: "", color: "transparent" },
+              { step: "3", label: "Push to ECR", icon: "📦", color: "#0f9d58" },
+              { step: "→", label: "", icon: "", color: "transparent" },
+              { step: "4", label: "ECS or EKS deploys", icon: "🚀", color: "#FF9900" },
+              { step: "→", label: "", icon: "", color: "transparent" },
+              { step: "5", label: "App is live!", icon: "✅", color: "#6a1b9a" },
+            ].map(({ step, label, icon, color }, i) => (
+              step === "→"
+                ? <div key={i} style={{ fontSize: 20, color: "rgba(255,255,255,0.4)" }}>→</div>
+                : <div key={i} style={{ background: color + "30", border: `1px solid ${color}60`, borderRadius: 8, padding: "8px 10px", textAlign: "center", minWidth: 80 }}>
+                    <div style={{ fontSize: 20 }}>{icon}</div>
+                    <div style={{ fontSize: 10, color, fontWeight: 700, marginTop: 3 }}>Step {step}</div>
+                    <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)", marginTop: 1 }}>{label}</div>
+                  </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Three services */}
+        <H2>The Three AWS Container Services</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+
+          {/* ECR */}
+          <div style={{ border: "1px solid #0f9d5830", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#0f9d58", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>📦</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>ECR — Elastic Container Registry</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Where your container images are stored</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>🧠 Think of it as...</div>
+                  <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontStyle: "italic", color: "#555", lineHeight: 1.6 }}>
+                    Docker Hub — but the AWS version. A private library where you push your container images. ECS and EKS pull from it when deploying.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>🎯 How it works</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                    <code style={{ background: "#f0f0f0", padding: "1px 5px", borderRadius: 3, fontSize: 11 }}>docker build -t myapp .</code><br />
+                    <code style={{ background: "#f0f0f0", padding: "1px 5px", borderRadius: 3, fontSize: 11 }}>docker push ecr.../myapp:latest</code><br />
+                    <span style={{ color: "#0f9d58" }}>→ ECS/EKS pulls from ECR to deploy</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[["Role", "Image storage"], ["Like", "Private Docker Hub"], ["Used by", "ECS + EKS"]].map(([k, v]) => (
+                  <div key={k} style={{ background: "#e8f5e9", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0f9d58" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ECS */}
+          <div style={{ border: "1px solid #FF990030", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#FF9900", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>🚀</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>ECS — Elastic Container Service</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>AWS-native way to run containers — easy mode</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 5 }}>🧠 Think of it as...</div>
+                  <div style={{ background: "#FFF3E0", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontStyle: "italic", color: "#555", lineHeight: 1.6 }}>
+                    AWS-managed system that runs, scales, and manages your containers. Tell it "run 3 copies of my app" — it handles the rest.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 5 }}>🎯 Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.65 }}>
+                    Run 3 copies of your web app container.<br />
+                    Traffic spike? Auto scales to 10.<br />
+                    Container crashes? ECS restarts it.<br />
+                    <span style={{ color: "#CC7A00", fontWeight: 600 }}>You just manage the containers.</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: 8 }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 4 }}>Two ways to run ECS:</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                  <div style={{ background: "#FFF3E0", borderRadius: 7, padding: "8px 10px" }}>
+                    <div style={{ fontWeight: 700, fontSize: 11.5, color: "#CC7A00" }}>ECS + EC2 🖥️</div>
+                    <div style={{ fontSize: 11.5, color: "#555", lineHeight: 1.5, marginTop: 3 }}>You manage EC2 fleet. ECS manages containers on top. Full infrastructure control.</div>
+                  </div>
+                  <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px" }}>
+                    <div style={{ fontWeight: 700, fontSize: 11.5, color: "#0f9d58" }}>ECS + Fargate 🚀</div>
+                    <div style={{ fontSize: 11.5, color: "#555", lineHeight: 1.5, marginTop: 3 }}>Serverless — no EC2 to manage. AWS handles servers. You only care about containers.</div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[["Type", "AWS-native"], ["Complexity", "Easy"], ["Best for", "Simplicity"]].map(([k, v]) => (
+                  <div key={k} style={{ background: "#FFF3E0", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#CC7A00" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* EKS */}
+          <div style={{ border: "1px solid #6a1b9a30", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#6a1b9a", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>☸️</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>EKS — Elastic Kubernetes Service</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Kubernetes on AWS — powerful mode</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 5 }}>🧠 Think of it as...</div>
+                  <div style={{ background: "#EDE7F6", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontStyle: "italic", color: "#555", lineHeight: 1.6 }}>
+                    Same idea as ECS — runs containers on AWS. But uses <b>Kubernetes</b>, the industry-standard open-source system. More powerful but more complex to set up.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 5 }}>🎯 When to use EKS</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.65 }}>
+                    • Your company already uses Kubernetes<br />
+                    • You need multi-cloud portability<br />
+                    • Large-scale, complex container workloads<br />
+                    • Maximum control and flexibility<br />
+                    <span style={{ color: "#6a1b9a", fontWeight: 600 }}>More setup — but industry standard.</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[["Type", "Kubernetes"], ["Complexity", "Higher"], ["Best for", "Flexibility"]].map(([k, v]) => (
+                  <div key={k} style={{ background: "#EDE7F6", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#6a1b9a" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ECS vs EKS comparison */}
+        <H2>🥊 ECS vs EKS — Which to Choose?</H2>
+        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 4 }}>
+          {[
+            ["Feature", "ECS 🚀", "EKS ☸️"],
+            ["Type", "AWS-native", "Managed Kubernetes"],
+            ["Complexity", "Easy — less setup", "Complex — K8s knowledge needed"],
+            ["Control", "Less (AWS manages more)", "More (full K8s API)"],
+            ["Standard", "AWS-specific", "Kubernetes (portable)"],
+            ["Best for", "Simplicity, AWS teams", "K8s expertise, multi-cloud"],
+            ["Both support", "EC2 (manage VMs) OR Fargate (serverless)", "EC2 (manage VMs) OR Fargate (serverless)"],
+          ].map((row, i) => (
+            <div key={i} style={{
+              display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
+              borderBottom: i < 6 ? "1px solid #f0f0f0" : "none",
+              background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
+            }}>
+              {row.map((cell, j) => (
+                <div key={j} style={{
+                  padding: "7px 10px", fontSize: i === 0 ? 11 : 12,
+                  fontWeight: i === 0 || j === 0 ? 700 : 400,
+                  color: i === 0 ? ["#FF9900", "#FFB74D", "#CE93D8"][j] || accent
+                       : j === 0 ? "#333"
+                       : j === 1 ? "#CC7A00"
+                       : "#6a1b9a",
+                  borderRight: j < 2 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.4,
+                }}>{cell}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* Summary */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 10 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 8 }}>🎯 Final One-Line Summary</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            {[
+              { icon: "📦", service: "ECR", desc: "Stores container images", color: "#0f9d58" },
+              { icon: "🚀", service: "ECS", desc: "Runs containers (easy mode)", color: "#FF9900" },
+              { icon: "☸️", service: "EKS", desc: "Runs containers (Kubernetes mode)", color: "#6a1b9a" },
+            ].map(({ icon, service, desc, color }) => (
+              <div key={service} style={{ background: color + "20", borderRadius: 8, padding: "10px", textAlign: "center" }}>
+                <div style={{ fontSize: 26, marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color }}>{service}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 3 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <Callout icon="🎯" label="Exam Tip"
+          text="ECR = image registry (like Docker Hub). ECS = AWS-native orchestration, simpler. EKS = managed Kubernetes, more powerful. Both ECS and EKS support EC2 launch type (you manage VMs) AND Fargate launch type (serverless). Know the 2×2 matrix: ECS+EC2, ECS+Fargate, EKS+EC2, EKS+Fargate." />
       </div>
     );
 
@@ -624,40 +908,277 @@ function SectionContent({ id }) {
 
     case "additional": return (
       <div>
-        <H2>Beyond EC2 and Lambda</H2>
         <BodyText>
-          AWS offers purpose-built compute services for specific use cases. Each one eliminates a different type of
-          operational burden. Tap each card to explore.
+          Beyond EC2, Lambda, and containers, AWS offers 4 purpose-built compute services.
+          Each one is designed to eliminate a specific type of complexity. Once you understand
+          the analogy for each, they're impossible to confuse.
         </BodyText>
-        <AdditionalServicesGrid />
-        <H2>Detailed Breakdown</H2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 4 }}>
+
+        {/* Quick summary bar */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "11px 14px", marginTop: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 8 }}>🎯 Super Simple Summary — Before We Dive In</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+            {[
+              { icon: "🌱", name: "Beanstalk", line: '"Deploy my app"', color: "#0f9d58" },
+              { icon: "⚙️", name: "Batch", line: '"Run jobs at scale"', color: "#1a73e8" },
+              { icon: "💡", name: "Lightsail", line: '"Easy servers"', color: "#FF9900" },
+              { icon: "🏢", name: "Outposts", line: '"Cloud at home"', color: "#6a1b9a" },
+            ].map(({ icon, name, line, color }) => (
+              <div key={name} style={{ background: color + "25", border: `1px solid ${color}40`, borderRadius: 8, padding: "9px", textAlign: "center" }}>
+                <div style={{ fontSize: 24, marginBottom: 3 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 12, color }}>{name}</div>
+                <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.7)", marginTop: 3 }}>{line}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <H2>Deep Dive — Each Service</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+
+          {/* Elastic Beanstalk */}
+          <div style={{ border: "1px solid #0f9d5830", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#0f9d58", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>🌱</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>Elastic Beanstalk</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Just give me your code — I'll handle everything else</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>🧠 Analogy</div>
+                  <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontStyle: "italic", color: "#555", lineHeight: 1.6 }}>
+                    Like ordering food delivery instead of cooking 🍔<br />
+                    You don't care about the kitchen — just the result. Tell AWS "here's my app" and it builds the entire restaurant for you.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>🎯 Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                    You built a Node.js app:<br />
+                    <span style={{ color: "#0f9d58" }}>Upload to Beanstalk →</span><br />
+                    AWS automatically creates:<br />
+                    • EC2 instances 🖥️<br />
+                    • Load balancer ⚖️<br />
+                    • Auto scaling 📈<br />
+                    • Networking 🌐<br />
+                    <b>Done. You just write code.</b>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[
+                  ["Under the hood", "Still uses EC2"],
+                  ["You manage", "Code + config only"],
+                  ["Supports", "Java, Node, Python, Go, Docker..."],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ background: "#e8f5e9", borderRadius: 6, padding: "6px 8px" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: "#0f9d58" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 8, fontSize: 12, color: "#555", fontStyle: "italic", borderTop: "1px solid #f0f0f0", paddingTop: 7 }}>
+                ⚠️ Not serverless — EC2 still runs under the hood. Beanstalk just automates the provisioning and setup so you don't have to do it manually.
+              </div>
+            </div>
+          </div>
+
+          {/* AWS Batch */}
+          <div style={{ border: "1px solid #1a73e830", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#1a73e8", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>⚙️</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>AWS Batch</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Run a lot of jobs automatically at any scale</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 5 }}>🧠 Analogy</div>
+                  <div style={{ background: "#E3F2FD", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontStyle: "italic", color: "#555", lineHeight: 1.6 }}>
+                    Like a factory assembly line 🏭<br />
+                    You send a pile of work. The factory processes it all in bulk — automatically spinning up machines as needed, then shutting them down when done.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 5 }}>🎯 Real Examples</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                    You submit a job (or millions of jobs):<br />
+                    • Process 1 million images 🖼️<br />
+                    • Run data analysis overnight 📊<br />
+                    • Scientific simulations 🔬<br />
+                    • Render video frames 🎬<br />
+                    <span style={{ color: "#1a73e8", fontWeight: 600 }}>AWS spins up EC2, runs everything, shuts down.</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[
+                  ["Best for", "Background / batch jobs"],
+                  ["NOT for", "Real-time / interactive"],
+                  ["Manages", "Scheduling + EC2 fleet"],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ background: "#E3F2FD", borderRadius: 6, padding: "6px 8px" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: "#1a73e8" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Amazon Lightsail */}
+          <div style={{ border: "1px solid #FF990030", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#FF9900", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>💡</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>Amazon Lightsail</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Simple AWS for beginners — predictable pricing</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 5 }}>🧠 Analogy</div>
+                  <div style={{ background: "#FFF3E0", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontStyle: "italic", color: "#555", lineHeight: 1.6 }}>
+                    Like buying a prebuilt PC instead of building one 🖥️<br />
+                    Less flexible, but everything is already configured. Great when you just want it to work without deep technical knowledge.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 5 }}>🎯 Real Examples</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                    Simple, predictable use cases:<br />
+                    • Launch a WordPress site 📝<br />
+                    • Small personal app or portfolio 💼<br />
+                    • Simple backend API 🔧<br />
+                    • Small business website 🏪<br />
+                    <span style={{ color: "#CC7A00", fontWeight: 600 }}>Fixed monthly pricing (~$3.50–$160/mo)</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[
+                  ["Think of it as", "EC2 + simplified UI"],
+                  ["Pricing", "Fixed monthly rates"],
+                  ["Best for", "Beginners, simple apps"],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ background: "#FFF3E0", borderRadius: 6, padding: "6px 8px" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: "#CC7A00" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 8, fontSize: 12, color: "#555", fontStyle: "italic", borderTop: "1px solid #f0f0f0", paddingTop: 7 }}>
+                💡 Think of it as "DigitalOcean on AWS" or "AWS for developers who want simple". Less powerful than EC2 but far easier to get started with.
+              </div>
+            </div>
+          </div>
+
+          {/* AWS Outposts */}
+          <div style={{ border: "1px solid #6a1b9a30", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#6a1b9a", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>🏢</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>AWS Outposts</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>AWS in your own data center — bring the cloud to you</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 5 }}>🧠 Analogy</div>
+                  <div style={{ background: "#EDE7F6", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, fontStyle: "italic", color: "#555", lineHeight: 1.6 }}>
+                    Like bringing the cloud into your office ☁️ → 🏢<br />
+                    AWS physically ships and installs servers in YOUR building. You still use the same AWS services, tools, and console — just running locally.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 5 }}>🎯 Real Examples</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                    When data <b>cannot leave</b> your building:<br />
+                    • 🏦 Bank: financial regulations require on-prem<br />
+                    • 🏭 Factory: ultra-low latency machine control<br />
+                    • 🏥 Hospital: patient data residency laws<br />
+                    • 🏛️ Government: classified data requirements<br />
+                    <span style={{ color: "#6a1b9a", fontWeight: 600 }}>Same AWS tools — different location.</span>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[
+                  ["Type", "Hybrid cloud"],
+                  ["Managed by", "AWS (remotely)"],
+                  ["Best for", "Compliance + latency"],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ background: "#EDE7F6", borderRadius: 6, padding: "6px 8px" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: "#6a1b9a" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Decision tree */}
+        <H2>🧩 Decision Tree — Which Service to Use?</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 4 }}>
           {[
-            { name: "Elastic Beanstalk", icon: "🌱", color: "#0f9d58",
-              desc: "The 'easy button' for EC2 deployments. You provide: application code + config. Beanstalk automatically creates: EC2 instances, Load Balancer, Auto Scaling, security groups, networking. You keep full visibility and can access underlying resources. Supports Java, .NET, Python, Node.js, Ruby, PHP, Go, Docker.",
-              note: "Beanstalk is not serverless — it still uses EC2. It just automates the setup." },
-            { name: "AWS Batch", icon: "⚙️", color: "#1a73e8",
-              desc: "Submit batch jobs and Batch handles scheduling, provisioning, and scaling of EC2 instances automatically. Optimises resource allocation based on job requirements. Scale from 1 to millions of batch jobs. Pay only for resources used.",
-              note: "Perfect for jobs that run periodically, not 24/7." },
-            { name: "Amazon Lightsail", icon: "💡", color: "#FF9900",
-              desc: "Predictable monthly pricing (starting ~$3.50/mo) for virtual private servers, databases, storage, and networking. Simplified console — great for developers who want cloud hosting without the full AWS learning curve.",
-              note: "Think of it as 'AWS for beginners' or 'DigitalOcean on AWS'." },
-            { name: "AWS Outposts", icon: "🏢", color: "#6a1b9a",
-              desc: "AWS delivers a physical rack of servers to YOUR data center. AWS installs, operates, and manages it. You run AWS services (EC2, ECS, RDS, S3) locally in your own facility. Consistent experience between on-premises and the cloud.",
-              note: "Ideal for: data residency regulations, low-latency requirements, or when you can't move certain workloads to the public cloud." },
-          ].map(({ name, icon, color, desc, note }) => (
-            <div key={name} style={{
-              border: `1px solid ${color}30`, borderLeft: `3px solid ${color}`,
-              borderRadius: 8, padding: "10px 12px",
+            { trigger: "I want to deploy a web app without managing servers", answer: "→ Elastic Beanstalk", color: "#0f9d58" },
+            { trigger: "I need to process millions of jobs/images/records overnight", answer: "→ AWS Batch", color: "#1a73e8" },
+            { trigger: "I want the simplest way to host a small website/app", answer: "→ Amazon Lightsail", color: "#FF9900" },
+            { trigger: "My data legally cannot leave my building", answer: "→ AWS Outposts", color: "#6a1b9a" },
+            { trigger: "I need maximum control over my infrastructure", answer: "→ Amazon EC2", color: "#d32f2f" },
+            { trigger: "I want zero infrastructure management for my function", answer: "→ AWS Lambda", color: "#546e7a" },
+          ].map(({ trigger, answer, color }) => (
+            <div key={trigger} style={{
+              display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap",
+              border: `1px solid ${color}20`, borderLeft: `3px solid ${color}`,
+              borderRadius: 7, padding: "8px 12px", background: color + "05",
             }}>
-              <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 5 }}>{icon} {name}</div>
-              <div style={{ fontSize: 12.5, color: "var(--color-text-secondary)", lineHeight: 1.55, marginBottom: 5 }}>{desc}</div>
-              <div style={{ fontSize: 11, color, fontStyle: "italic" }}>💡 {note}</div>
+              <span style={{ fontSize: 12.5, color: "#555", flex: 1, minWidth: 200 }}>{trigger}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color, flexShrink: 0 }}>{answer}</span>
             </div>
           ))}
         </div>
+
+        {/* Quick comparison table */}
+        <H2>⚖️ Quick Comparison</H2>
+        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 4 }}>
+          {[
+            ["Service", "What it's for", "You manage", "Avoid when"],
+            ["🌱 Beanstalk", "Deploy apps easily", "Code + config", "Need full infrastructure control"],
+            ["⚙️ Batch", "Run large background jobs", "Job code + logic", "Need real-time / interactive apps"],
+            ["💡 Lightsail", "Simple VPS, fixed pricing", "Your app", "Need advanced AWS features"],
+            ["🏢 Outposts", "AWS in your data center", "Physical space + power", "Data can go to cloud normally"],
+          ].map((row, i) => (
+            <div key={i} style={{
+              display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr",
+              borderBottom: i < 4 ? "1px solid #f0f0f0" : "none",
+              background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
+            }}>
+              {row.map((cell, j) => (
+                <div key={j} style={{
+                  padding: "7px 10px", fontSize: i === 0 ? 11 : 12,
+                  fontWeight: i === 0 || j === 0 ? 700 : 400,
+                  color: i === 0 ? accent
+                       : j === 0 ? ["#0f9d58","#1a73e8","#CC7A00","#6a1b9a"][i-1] || "#333"
+                       : "#555",
+                  borderRight: j < 3 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.4,
+                }}>{cell}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+
         <Callout icon="🎯" label="Exam Tip"
-          text="Beanstalk = deploy code, AWS provisions infrastructure (still EC2 under the hood). Batch = batch/parallel compute jobs. Lightsail = simple, predictable-priced VPS. Outposts = AWS in your data center for hybrid/compliance needs." />
+          text="Beanstalk = deploy code, AWS creates EC2+LB+scaling (not serverless, still EC2 under hood). Batch = batch/parallel jobs at scale, not real-time. Lightsail = simplified EC2 with fixed pricing, for beginners. Outposts = physical AWS hardware IN your data center, hybrid cloud for compliance and latency." />
       </div>
     );
 
