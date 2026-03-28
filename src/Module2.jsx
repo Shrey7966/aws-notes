@@ -494,84 +494,314 @@ function SectionContent({ id }) {
   switch (id) {
     case "ec2-intro": return (
       <div>
-        <H2>What is Amazon EC2?</H2>
+        <H2>What is Amazon EC2? — The Simple Version</H2>
         <BodyText>
-          EC2 stands for <b>Elastic Compute Cloud</b>. It gives you virtual servers (called <b>instances</b>) in the cloud.
-          Instead of buying and managing physical servers, you rent virtual compute capacity on-demand — and pay only while the instance is running.
+          EC2 stands for <b>Elastic Compute Cloud</b>. In plain English:
+          <b> you're renting a computer online</b>. Instead of buying physical servers,
+          you request one, it's ready in minutes, and you only pay while it's running.
         </BodyText>
         <Analogy icon="☕" label="Coffee Shop Analogy"
-          text="EC2 instances are like baristas — they do the actual work (processing orders/requests). AWS owns and maintains the entire coffee shop building (the physical server). You just hire and fire baristas (launch and terminate instances) as demand changes." />
-        <H2>Key EC2 Concepts</H2>
-        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid var(--color-border-tertiary)" }}>
+          text="EC2 instances are like baristas — they do the actual work (process requests). AWS owns the entire building (physical server). You just hire and fire baristas (launch/terminate instances) as demand changes. You never touch the building itself." />
+
+        <H2>Key EC2 Concepts — Explained Like a Human</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
           {[
-            ["Virtual Machine (VM)", "EC2 instances are VMs — software-based computers that run on shared physical hardware."],
-            ["Multi-Tenancy", "Multiple VMs share the same physical host machine. AWS's hypervisor keeps each VM fully isolated."],
-            ["Hypervisor", "Software managing the physical host, allocating resources and ensuring isolation between VMs. AWS manages this — you don't."],
-            ["AMI (Amazon Machine Image)", "Template for your instance — includes the OS and pre-installed software. Think of it as a 'snapshot' you use to launch identical servers."],
-            ["Resizable", "Start small, grow as needed. You can change CPU and memory (vertical scaling) at any time."],
-            ["Key Pair", "Two-part security key for logging in: AWS keeps the public key in your instance; you keep the private key."],
-            ["User Data", "Bootstrap script that runs when your instance first launches. Used to install software, configure settings automatically."],
-          ].map(([term, desc], i) => (
-            <div key={i} style={{
-              display: "grid", gridTemplateColumns: "140px 1fr", gap: 10, padding: "8px 12px",
-              borderBottom: i < 6 ? "1px solid var(--color-border-tertiary)" : "none",
-              background: i % 2 === 0 ? "var(--color-background-secondary)" : "var(--color-background-primary)",
+            {
+              icon: "🖥️", term: "Virtual Machine (VM)", color: "#1a73e8",
+              simple: "A computer inside another computer.",
+              detail: "Instead of buying a physical laptop or server, you're renting one online. It runs on shared hardware but behaves exactly like a dedicated machine.",
+            },
+            {
+              icon: "🏢", term: "Multi-Tenancy", color: "#0f9d58",
+              simple: "Like living in an apartment building.",
+              detail: "Many people live in the same building (same physical server), but everyone has their own private apartment (their own VM). You share the building but can't see into each other's units.",
+            },
+            {
+              icon: "⚙️", term: "Hypervisor", color: "#FF9900",
+              simple: "The building manager.",
+              detail: "Software that makes sure everyone gets their resources (CPU, RAM) without interfering with each other. AWS manages this completely — you never interact with it.",
+            },
+            {
+              icon: "📦", term: "AMI (Amazon Machine Image)", color: "#6a1b9a",
+              simple: "A ready-made template.",
+              detail: "Like ordering a new phone that already has your apps installed. An AMI lets you launch new servers instantly with everything pre-configured — OS, software, settings all bundled in.",
+            },
+            {
+              icon: "🔄", term: "Resizable", color: "#d32f2f",
+              simple: "Your server is flexible.",
+              detail: "Like upgrading your phone storage or RAM — you can make your EC2 instance bigger (more CPU/RAM) or smaller at any time. No hardware to buy. Just change the instance type.",
+            },
+            {
+              icon: "🔑", term: "Key Pair", color: "#1a73e8",
+              simple: "Your secure login system.",
+              detail: "AWS keeps a 'lock' (public key) on the server. You keep the 'key' (private key). Only you can unlock and access your server via SSH. If you lose your private key, you lose access.",
+            },
+            {
+              icon: "🚀", term: "User Data", color: "#0f9d58",
+              simple: "A setup checklist that runs automatically on first boot.",
+              detail: "Like telling your new phone to install apps and configure Wi-Fi automatically. Example: 'install Nginx, configure settings, start web server' — all done without you manually logging in.",
+            },
+            {
+              icon: "💾", term: "EBS Volume", color: "#546e7a",
+              simple: "A virtual hard drive for your EC2.",
+              detail: "Elastic Block Store — persistent storage attached to your instance. Like a USB drive that stays connected even when you restart. Default 8GB gp3 for most web servers.",
+            },
+          ].map(({ icon, term, color, simple, detail }) => (
+            <div key={term} style={{
+              border: `1px solid ${color}25`, borderLeft: `3px solid ${color}`,
+              borderRadius: 8, padding: "10px 13px", background: color + "06",
             }}>
-              <div style={{ fontWeight: 600, fontSize: 12, color: "#1a73e8" }}>{term}</div>
-              <div style={{ fontSize: 12.5, color: "var(--color-text-secondary)", lineHeight: 1.5 }}>{desc}</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 20 }}>{icon}</span>
+                <div style={{ fontWeight: 700, fontSize: 13, color }}>{term}</div>
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "var(--color-text-primary)", marginBottom: 3 }}>
+                💡 {simple}
+              </div>
+              <div style={{ fontSize: 12.5, color: "var(--color-text-secondary)", lineHeight: 1.6 }}>{detail}</div>
             </div>
           ))}
         </div>
-        <H2>EC2 Launch Configuration — Step by Step</H2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+
+        <H2>EC2 Launch — 7 Steps</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 4 }}>
           {[
-            ["1", "Name your instance", "Label it so you can find it later in the console."],
-            ["2", "Choose an AMI", "Pick OS + pre-installed software template. E.g. Amazon Linux for web servers."],
-            ["3", "Choose instance type", "How much CPU and RAM? t2.micro = 1 vCPU, 1 GB RAM (Free Tier eligible)."],
-            ["4", "Configure key pair", "For SSH login. Public key goes into the instance; you keep the private key."],
-            ["5", "Network settings", "Allow HTTP/HTTPS? Public or private? Security group rules."],
-            ["6", "Storage", "Attach EBS volume. Default 8 GB gp3 for most web servers."],
-            ["7", "User Data (optional)", "Paste a startup script — e.g. install and start Nginx web server automatically."],
-          ].map(([num, step, detail]) => (
+            ["1", "Name your instance", "Label it so you can find it later in the console.", "#1a73e8"],
+            ["2", "Choose an AMI", "Pick OS + pre-installed software template. Amazon Linux = great for web servers.", "#0f9d58"],
+            ["3", "Choose instance type", "How much CPU and RAM? t2.micro = 1 vCPU, 1 GB RAM. Free Tier eligible.", "#FF9900"],
+            ["4", "Configure key pair", "SSH login keys. Public key goes into instance; you keep the private key.", "#6a1b9a"],
+            ["5", "Network settings", "Allow HTTP (80) / HTTPS (443)? Public or private subnet? Security group.", "#d32f2f"],
+            ["6", "Storage (EBS)", "Attach virtual disk. Default 8 GB gp3 for most web servers.", "#546e7a"],
+            ["7", "User Data (optional)", "Startup script — installs and configures software automatically on first boot.", "#1a73e8"],
+          ].map(([num, step, detail, color]) => (
             <div key={num} style={{
               display: "flex", gap: 10, alignItems: "flex-start",
-              background: "var(--color-background-secondary)",
-              border: "1px solid var(--color-border-tertiary)", borderRadius: 7, padding: "7px 10px",
+              border: `1px solid ${color}20`, borderRadius: 7, padding: "8px 11px", background: color + "06",
             }}>
               <div style={{
-                width: 22, height: 22, borderRadius: "50%", background: accent,
+                width: 24, height: 24, borderRadius: "50%", background: color,
                 color: "white", fontSize: 11, fontWeight: 700,
                 display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
               }}>{num}</div>
               <div>
-                <div style={{ fontWeight: 600, fontSize: 12, color: "var(--color-text-primary)" }}>{step}</div>
+                <div style={{ fontWeight: 700, fontSize: 12.5, color }}>{step}</div>
                 <div style={{ fontSize: 12, color: "var(--color-text-secondary)" }}>{detail}</div>
               </div>
             </div>
           ))}
         </div>
+
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 10 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 8 }}>💡 Big Picture — EC2 in one sentence</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+            {[
+              ["👉", "Renting computers online"],
+              ["👉", "Set up, resize, and control easily"],
+              ["👉", "Pay only while running"],
+              ["👉", "No physical hardware ownership"],
+            ].map(([arrow, text]) => (
+              <div key={text} style={{ fontSize: 12, color: "rgba(255,255,255,0.8)", display: "flex", gap: 6 }}>
+                <span style={{ color: accent }}>{arrow}</span>{text}
+              </div>
+            ))}
+          </div>
+        </div>
+
         <Callout icon="🎯" label="Exam Tip"
-          text="You only pay for EC2 instances while they are RUNNING. Stopped instances = no compute charges (but you still pay for attached EBS storage). Terminated = completely deleted, no charges." />
+          text="You only pay for EC2 instances while RUNNING. Stopped = no compute charge (but EBS storage still billed). Terminated = deleted entirely, no charges. Multi-tenancy = shared physical host, isolated VMs via hypervisor." />
       </div>
     );
 
     case "ec2-types": return (
       <div>
         <BodyText>
-          EC2 instances come in <b>5 families</b>, each optimised for a different type of workload.
-          Think of it like coffee machines — you need the right machine for each type of drink.
+          EC2 instances come in <b>5 families</b>, each built for a specific type of job.
+          Think of them like different types of computers you can rent — each designed for a specific workload.
         </BodyText>
-        <Analogy icon="☕" label="Coffee Machine Analogy"
-          text="A high-powered espresso machine (Compute Optimized) for espresso shots. A simple drip machine (General Purpose) for everyday coffee. A cold-brew tower (Memory Optimized) for slow, heavy processes. Choose the right machine for the job to avoid waste." />
-        <H2>EC2 Instance Families</H2>
-        <InstanceFamilyTable />
-        <H2>Choosing Instance Size</H2>
-        <BodyText>
-          Within each family, instances come in multiple sizes (nano, micro, small, medium, large, xlarge, 2xlarge...).
-          Bigger = more power = more cost. Start small, measure, then resize if needed. The cloud lets you pivot any time.
-        </BodyText>
+
+        {/* Intuitive intro */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 8 }}>💡 What are EC2 Instance Families?</div>
+          <div style={{ fontSize: 12.5, color: "rgba(255,255,255,0.8)", lineHeight: 1.65, marginBottom: 8 }}>
+            Just like you wouldn't use a gaming PC to run simple spreadsheets, AWS gives you different types of servers for different jobs. Each "family" has a letter prefix that tells you what it's optimised for.
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6 }}>
+            {[
+              ["💻", "Basic laptop", "→ General Purpose"],
+              ["🧮", "Calculation beast", "→ Compute Optimized"],
+              ["📚", "Huge memory", "→ Memory Optimized"],
+              ["🎮", "GPU workstation", "→ Accelerated"],
+              ["💾", "Fast SSD server", "→ Storage Optimized"],
+            ].map(([icon, desc, family]) => (
+              <div key={family} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: 18, marginBottom: 2 }}>{icon}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.6)" }}>{desc}</div>
+                <div style={{ fontSize: 10.5, color: accent, fontWeight: 700, marginTop: 2 }}>{family}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <H2>The 5 Instance Families — Deep Dive</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+          {[
+            {
+              emoji: "⚖️", name: "General Purpose", prefix: "t, m", color: "#1a73e8",
+              focus: "Balanced — a bit of everything (CPU + RAM + network)",
+              analogy: "A regular laptop — good for browsing, coding, and light apps. Doesn't excel at anything specific but handles most tasks well.",
+              useCases: ["Hosting a website", "Running a small app / API", "Backend services", "Dev/test environments"],
+              instances: ["t2.micro (Free Tier)", "t3.medium", "m5.large"],
+              avoid: "High-performance calculations or huge databases",
+            },
+            {
+              emoji: "🧠", name: "Compute Optimized", prefix: "c", color: "#0f9d58",
+              focus: "Strong CPU — fast thinking power, heavy calculations",
+              analogy: "A high-performance CPU workstation. Fast thinker — solves math problems quickly. Doesn't need to hold a lot of data in memory at once.",
+              useCases: ["Game servers", "Video encoding", "Scientific simulations", "Machine learning inference", "High-performance computing (HPC)"],
+              instances: ["c5.large", "c5n.xlarge", "c6g.medium"],
+              avoid: "Apps that need to hold massive datasets in RAM",
+            },
+            {
+              emoji: "🧾", name: "Memory Optimized", prefix: "r, x", color: "#6a1b9a",
+              focus: "Huge RAM — holds massive datasets in memory",
+              analogy: "A person with great memory — remembers tons of information. Doesn't necessarily think super fast, but never needs to 'look things up' because everything is already loaded and ready.",
+              useCases: ["Large databases (MySQL, PostgreSQL)", "In-memory caches (Redis, Memcached)", "Real-time analytics dashboards", "Processing large datasets in memory"],
+              instances: ["r5.large", "r6g.xlarge", "x1e.32xlarge"],
+              avoid: "CPU-intensive calculations where speed matters more than capacity",
+            },
+            {
+              emoji: "🚀", name: "Accelerated Computing", prefix: "p, g, inf", color: "#FF9900",
+              focus: "GPU power — graphics, AI training, deep learning",
+              analogy: "A gaming PC or AI workstation. The GPU is the special ingredient — handles thousands of parallel calculations simultaneously. Essential for machine learning and 3D rendering.",
+              useCases: ["Training AI / ML models", "Video rendering and 3D graphics", "Deep learning", "GPU-based simulations", "Cryptocurrency mining"],
+              instances: ["p3.2xlarge (ML training)", "g4dn.xlarge (inference)", "inf1 (Inferentia chip)"],
+              avoid: "General web hosting — overkill and expensive for simple tasks",
+            },
+            {
+              emoji: "💾", name: "Storage Optimized", prefix: "i, d, h", color: "#d32f2f",
+              focus: "Super fast disk I/O — reading and writing massive amounts of data",
+              analogy: "A computer with extremely fast SSDs. Not about calculations or memory — it's about how fast you can read and write data to disk. Like a library with a super-fast filing system.",
+              useCases: ["Data warehouses", "Logging and analytics systems", "High-volume transactional databases (OLTP)", "Distributed file systems (Hadoop, Elasticsearch)"],
+              instances: ["i3.large (NVMe SSD)", "d2.xlarge (HDD dense)", "h1.2xlarge"],
+              avoid: "Apps where you need fast CPU or huge RAM — wrong tool",
+            },
+          ].map(({ emoji, name, prefix, color, focus, analogy, useCases, instances, avoid }) => (
+            <div key={name} style={{ border: `1px solid ${color}30`, borderRadius: 10, overflow: "hidden" }}>
+              <div style={{ background: color, padding: "9px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+                <span style={{ fontSize: 22 }}>{emoji}</span>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>{name}</div>
+                  <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.75)" }}>Prefix: {prefix} &nbsp;·&nbsp; {focus}</div>
+                </div>
+              </div>
+              <div style={{ padding: "11px 14px", background: "white" }}>
+                {/* Analogy */}
+                <div style={{ background: color + "10", borderLeft: `3px solid ${color}`, borderRadius: 6, padding: "7px 10px", marginBottom: 9, fontSize: 12.5, color: "#555", fontStyle: "italic", lineHeight: 1.6 }}>
+                  🧠 <b>Analogy:</b> {analogy}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 4 }}>✅ Real-world use cases</div>
+                    {useCases.map(u => <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {u}</div>)}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 11, color: "#888", marginBottom: 4 }}>🏷️ Example instance types</div>
+                    {instances.map(inst => (
+                      <div key={inst} style={{ background: color + "12", border: `1px solid ${color}25`, borderRadius: 4, padding: "2px 8px", marginBottom: 3, display: "inline-block", fontSize: 11, color, fontFamily: "monospace" }}>{inst}</div>
+                    ))}
+                    <div style={{ marginTop: 6, fontSize: 11, color: "#d32f2f", fontStyle: "italic" }}>⚠️ Don't use for: {avoid}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Compute vs Memory deep dive */}
+        <H2>⚡ Compute vs Memory Optimized — The Core Difference</H2>
+        <div style={{ background: "#f9f9f9", borderRadius: 10, padding: "12px 14px", marginTop: 4 }}>
+          <div style={{ fontSize: 13, color: "#555", lineHeight: 1.7, marginBottom: 10 }}>
+            This is the most confusing comparison for beginners. Here's the clearest way to think about it:
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ border: "1px solid #0f9d5830", borderTop: "3px solid #0f9d58", borderRadius: 8, padding: "12px" }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: "#0f9d58", marginBottom: 6 }}>⚡ Compute Optimized</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: "#333", marginBottom: 5 }}>Focus: CPU — processing speed</div>
+              <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.55 }}>Strong CPUs that can handle lots of calculations quickly. Doesn't need to hold lots of data in memory at once.</div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 4 }}>When your app is DOING work:</div>
+              {["Calculating millions of numbers", "Running game physics engine", "Encoding video frames", "ML model inference"].map(e => (
+                <div key={e} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {e}</div>
+              ))}
+              <div style={{ marginTop: 8, background: "#0f9d5815", borderRadius: 6, padding: "6px 9px", fontSize: 12, fontWeight: 600, color: "#0f9d58" }}>
+                🧠 Person analogy: Fast thinker — solves math problems rapidly but doesn't need to remember much
+              </div>
+            </div>
+            <div style={{ border: "1px solid #6a1b9a30", borderTop: "3px solid #6a1b9a", borderRadius: 8, padding: "12px" }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color: "#6a1b9a", marginBottom: 6 }}>🧾 Memory Optimized</div>
+              <div style={{ fontSize: 12.5, fontWeight: 600, color: "#333", marginBottom: 5 }}>Focus: RAM — holding large data</div>
+              <div style={{ fontSize: 12, color: "#555", marginBottom: 8, lineHeight: 1.55 }}>Massive RAM lets you keep huge datasets loaded and ready. CPU is decent but RAM is the real strength.</div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 4 }}>When your app is HOLDING data:</div>
+              {["Huge database (millions of users)", "Real-time analytics dashboard", "In-memory cache (Redis)", "Loading large datasets for analysis"].map(e => (
+                <div key={e} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {e}</div>
+              ))}
+              <div style={{ marginTop: 8, background: "#6a1b9a15", borderRadius: 6, padding: "6px 9px", fontSize: 12, fontWeight: 600, color: "#6a1b9a" }}>
+                📚 Person analogy: Great memory — remembers everything instantly but doesn't calculate super fast
+              </div>
+            </div>
+          </div>
+          {/* One-liner rule */}
+          <div style={{ marginTop: 10, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div style={{ background: "#0f9d5818", borderRadius: 7, padding: "8px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#0f9d58" }}>If your app is DOING work → CPU</div>
+              <div style={{ fontSize: 11, color: "#555", marginTop: 3 }}>Compute Optimized (c family)</div>
+            </div>
+            <div style={{ background: "#6a1b9a18", borderRadius: 7, padding: "8px 12px", textAlign: "center" }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#6a1b9a" }}>If your app is HOLDING data → RAM</div>
+              <div style={{ fontSize: 11, color: "#555", marginTop: 3 }}>Memory Optimized (r, x family)</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick decision guide */}
+        <H2>🧩 Quick Decision Guide</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, marginTop: 4 }}>
+          {[
+            ["❓ I'm not sure yet", "→ General Purpose (t3, m5) — safe default"],
+            ["⚡ I need speed for calculations", "→ Compute Optimized (c5, c6g)"],
+            ["📚 I need lots of memory", "→ Memory Optimized (r5, r6g)"],
+            ["🎮 I need GPUs or AI training", "→ Accelerated Computing (p3, g4)"],
+            ["💾 I read/write tons of data to disk", "→ Storage Optimized (i3, d2)"],
+          ].map(([trigger, answer]) => (
+            <div key={trigger} style={{ display: "flex", gap: 10, alignItems: "center", background: "#f9f9f9", borderRadius: 7, padding: "8px 12px", border: "1px solid #eee" }}>
+              <span style={{ fontSize: 13, minWidth: 220, fontWeight: 600, color: "#333" }}>{trigger}</span>
+              <span style={{ fontSize: 12.5, color: "#FF9900", fontWeight: 700 }}>{answer}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Real-world app scenario */}
+        <H2>🎯 Real App Scenario — Full Stack Example</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, marginTop: 4 }}>
+          {[
+            { layer: "Frontend + API", type: "General Purpose", instance: "t3.medium", color: "#1a73e8", reason: "Handles typical request load — balanced CPU and memory" },
+            { layer: "Recommendation Engine", type: "Compute Optimized", instance: "c5.2xlarge", color: "#0f9d58", reason: "Heavy ML inference calculations on every request" },
+            { layer: "Database Server", type: "Memory Optimized", instance: "r5.2xlarge", color: "#6a1b9a", reason: "Millions of rows loaded in memory for fast queries" },
+            { layer: "AI Image Processing", type: "Accelerated Computing", instance: "g4dn.xlarge", color: "#FF9900", reason: "GPU needed for image recognition model" },
+            { layer: "Logs & Analytics", type: "Storage Optimized", instance: "i3.large", color: "#d32f2f", reason: "Constant high-speed read/write to NVMe SSDs" },
+          ].map(({ layer, type, instance, color, reason }) => (
+            <div key={layer} style={{ border: `1px solid ${color}25`, borderLeft: `3px solid ${color}`, borderRadius: 7, padding: "8px 11px" }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 2 }}>{layer}</div>
+              <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
+                <span style={{ fontSize: 10.5, background: color + "18", color, border: `1px solid ${color}30`, borderRadius: 10, padding: "1px 7px", fontWeight: 700 }}>{type}</span>
+                <code style={{ fontSize: 10.5, color: "#555", background: "#f0f0f0", padding: "1px 5px", borderRadius: 4 }}>{instance}</code>
+              </div>
+              <div style={{ fontSize: 11.5, color: "#666", fontStyle: "italic" }}>{reason}</div>
+            </div>
+          ))}
+        </div>
+
         <Callout icon="🎯" label="Exam Tip"
-          text="For the exam, know the 5 families and a use case for each. General Purpose = balanced. Compute Optimized = gaming/HPC. Memory Optimized = large datasets in RAM. Accelerated = GPU/ML. Storage Optimized = high I/O." />
+          text="Know all 5 families and one use case each. The most confused pair: Compute Optimized (c) = fast calculations/CPU. Memory Optimized (r) = huge RAM for big datasets. Simple rule: doing work = CPU, holding data = RAM." />
       </div>
     );
 
@@ -730,37 +960,270 @@ function SectionContent({ id }) {
     case "messaging": return (
       <div>
         <BodyText>
-          AWS provides three key services for building loosely coupled, event-driven, message-based architectures.
-          Select each service to explore how it works.
+          SNS, SQS, and EventBridge all send messages between parts of your system — but they behave
+          very differently. Once you understand the analogy for each, you'll never confuse them again.
         </BodyText>
-        <MessagingTabs />
-        <H2>Quick Comparison</H2>
-        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid var(--color-border-tertiary)", marginTop: 4 }}>
+
+        {/* Big picture */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 8 }}>🧠 Big Picture — Think of your system like people communicating</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            {[
+              { icon: "📢", service: "SNS", line: "Broadcast announcement", color: "#1a73e8" },
+              { icon: "📬", service: "SQS", line: "Queue / to-do list", color: "#0f9d58" },
+              { icon: "🧭", service: "EventBridge", line: "Smart event router", color: "#FF9900" },
+            ].map(({ icon, service, line, color }) => (
+              <div key={service} style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "10px", textAlign: "center" }}>
+                <div style={{ fontSize: 26, marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 12, color }}>{service}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", marginTop: 3 }}>{line}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <H2>Deep Dive — Each Service</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+
+          {/* SNS */}
+          <div style={{ border: "1px solid #1a73e830", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#1a73e8", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>📢</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>SNS — Simple Notification Service</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>Publish a message once → deliver to MANY subscribers instantly</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 5 }}>🏟️ Real-World Analogy</div>
+                  <div style={{ background: "#E3F2FD", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, color: "#555", fontStyle: "italic", lineHeight: 1.6 }}>
+                    A loudspeaker at an airport:<br />
+                    <b>"Flight delayed!"</b><br />
+                    Everyone in the terminal hears it instantly. You say it once — hundreds receive it simultaneously.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 5 }}>🎯 Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                    You upload a file to S3:<br />
+                    <span style={{ color: "#1a73e8" }}>SNS pushes notification simultaneously to:</span><br />
+                    • Send email to user ✉️<br />
+                    • Trigger a Lambda 🔧<br />
+                    • Notify another service 🔔<br />
+                    <b>All at the same time.</b>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[
+                  ["Pattern", "One → Many"],
+                  ["Delivery", "Push-based"],
+                  ["Persistence", "No — fire and forget"],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ background: "#E3F2FD", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#1a73e8" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* SQS */}
+          <div style={{ border: "1px solid #0f9d5830", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#0f9d58", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>📬</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>SQS — Simple Queue Service</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>Store messages in a queue → workers process them one at a time</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>🏪 Real-World Analogy</div>
+                  <div style={{ background: "#E8F5E9", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, color: "#555", fontStyle: "italic", lineHeight: 1.6 }}>
+                    A line at a coffee shop:<br />
+                    • Orders wait in the queue<br />
+                    • Barista handles them one at a time<br />
+                    • If barista is busy → orders wait, they don't disappear<br />
+                    <b>Reliable and decoupled.</b>
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>🎯 Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                    User places an order → goes into SQS:<br />
+                    Background worker picks it up and:<br />
+                    <span style={{ color: "#0f9d58" }}>• Charges payment 💳<br />
+                    • Updates inventory 📦<br />
+                    • Sends confirmation email ✉️</span><br />
+                    <b>All done reliably, one step at a time.</b>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[
+                  ["Pattern", "One → One"],
+                  ["Delivery", "Pull-based"],
+                  ["Persistence", "Yes — stored until processed"],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ background: "#E8F5E9", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#0f9d58" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* EventBridge */}
+          <div style={{ border: "1px solid #FF990030", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#FF9900", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 24 }}>🧭</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>Amazon EventBridge</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Smart event bus — listens for events and routes them based on rules</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 5 }}>🚦 Real-World Analogy</div>
+                  <div style={{ background: "#FFF3E0", borderRadius: 7, padding: "8px 10px", fontSize: 12.5, color: "#555", fontStyle: "italic", lineHeight: 1.6 }}>
+                    A smart traffic controller:<br />
+                    <b>"If THIS happens → send it THERE"</b><br />
+                    Automatically routes events based on rules you define. One event can trigger many different actions across many services.
+                  </div>
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 5 }}>🎯 Real Examples</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.7 }}>
+                    <span style={{ color: "#CC7A00" }}>Rule triggers:</span><br />
+                    • EC2 stops → alert Slack 🔔<br />
+                    • New user signs up → onboarding Lambda 🔧<br />
+                    • Order &gt; $1,000 → fraud system alert 🚨<br />
+                    • Every midnight → backup job ⏰<br />
+                    <b>From AWS services, your app, or SaaS.</b>
+                  </div>
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 6, marginTop: 8 }}>
+                {[
+                  ["Pattern", "Many → Many"],
+                  ["Delivery", "Rule-based"],
+                  ["Persistence", "Yes — events tracked"],
+                ].map(([k, v]) => (
+                  <div key={k} style={{ background: "#FFF3E0", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                    <div style={{ fontSize: 10, color: "#888", marginBottom: 2 }}>{k}</div>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: "#CC7A00" }}>{v}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Quick Comparison Table */}
+        <H2>🥊 Quick Comparison</H2>
+        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 4 }}>
           {[
-            ["", "SQS", "SNS", "EventBridge"],
-            ["Model", "Queue (pull)", "Pub/Sub (push)", "Event bus (route)"],
-            ["Message stored?", "✅ Yes, until processed", "❌ Fire-and-forget", "✅ Retry on failure"],
-            ["Receivers", "One consumer per message", "All subscribers receive", "Filtered routing by rules"],
-            ["Best for", "Decoupling services, batch", "Fan-out notifications", "Complex event routing"],
+            ["Feature", "SNS 📢", "SQS 📬", "EventBridge 🧭"],
+            ["Type", "Pub/Sub", "Queue", "Event bus"],
+            ["Delivery", "Push (instant)", "Pull (worker pulls)", "Rule-based routing"],
+            ["Pattern", "One → Many", "One → One", "Many → Many"],
+            ["Persistence", "❌ No — fire & forget", "✅ Yes — stored in queue", "✅ Yes — events tracked"],
+            ["Fan-out", "✅ Yes (all subscribers)", "❌ No", "✅ Yes (smart routing)"],
+            ["Use case", "Notifications, alerts", "Background jobs, decoupling", "Complex event routing"],
+            ["Best analogy", "Loudspeaker", "Coffee shop queue", "Smart traffic controller"],
           ].map((row, i) => (
             <div key={i} style={{
               display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr",
-              borderBottom: i < 4 ? "1px solid var(--color-border-tertiary)" : "none",
-              background: i === 0 ? "var(--color-background-secondary)" : i % 2 === 0 ? "var(--color-background-secondary)" : "var(--color-background-primary)",
+              borderBottom: i < 7 ? "1px solid #f0f0f0" : "none",
+              background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
             }}>
               {row.map((cell, j) => (
                 <div key={j} style={{
-                  padding: "7px 10px", fontSize: i === 0 ? 11 : 12,
+                  padding: "6px 10px", fontSize: i === 0 ? 11 : 12,
                   fontWeight: i === 0 || j === 0 ? 700 : 400,
-                  color: i === 0 ? accent : j === 0 ? "var(--color-text-primary)" : "var(--color-text-secondary)",
-                  borderRight: j < 3 ? "1px solid var(--color-border-tertiary)" : "none",
+                  color: i === 0 ? ["#FF9900","#5BA3F5","#81C784","#FFB74D"][j] || "#FF9900"
+                       : j === 0 ? "#333"
+                       : j === 1 ? "#1a73e8"
+                       : j === 2 ? "#0f9d58"
+                       : "#CC7A00",
+                  borderRight: j < 3 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.4,
                 }}>{cell}</div>
               ))}
             </div>
           ))}
         </div>
+
+        {/* How they work together */}
+        <H2>🔥 How They Work Together — Real Architecture</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 4 }}>
+          <div style={{ border: "1px solid #1a73e830", borderRadius: 8, padding: "11px 13px", background: "#E3F2FD20" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#1a73e8", marginBottom: 8 }}>📦 E-commerce Order Flow</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "#555" }}>
+              {[
+                ["1", "User places order", "#1a73e8"],
+                ["2", "App publishes to SNS topic", "#1a73e8"],
+                ["3", "SNS fans out to:", "#888"],
+                ["→", "SQS queue (payment worker)", "#0f9d58"],
+                ["→", "SQS queue (inventory worker)", "#0f9d58"],
+                ["→", "Lambda (send confirmation email)", "#FF9900"],
+                ["4", "Each worker processes independently", "#6a1b9a"],
+              ].map(([step, text, color]) => (
+                <div key={text} style={{ display: "flex", gap: 7, alignItems: "center" }}>
+                  <span style={{ fontWeight: 700, fontSize: 11, color, minWidth: 14 }}>{step}</span>
+                  <span style={{ color }}>{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ border: "1px solid #FF990030", borderRadius: 8, padding: "11px 13px", background: "#FFF3E020" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#CC7A00", marginBottom: 8 }}>🎮 EventBridge-Driven Flow</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "#555" }}>
+              {[
+                ["1", "Event occurs (EC2 stops, user signs up)", "#CC7A00"],
+                ["2", "EventBridge receives the event", "#CC7A00"],
+                ["3", "Rules engine evaluates:", "#888"],
+                ["→", "Rule 1: → send to SQS (process later)", "#0f9d58"],
+                ["→", "Rule 2: → trigger Lambda (immediate)", "#FF9900"],
+                ["→", "Rule 3: → notify SNS (alert team)", "#1a73e8"],
+                ["4", "Multiple targets execute in parallel", "#6a1b9a"],
+              ].map(([step, text, color]) => (
+                <div key={text} style={{ display: "flex", gap: 7, alignItems: "center" }}>
+                  <span style={{ fontWeight: 700, fontSize: 11, color, minWidth: 14 }}>{step}</span>
+                  <span style={{ color }}>{text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Super simple summary */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 10 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 8 }}>🎯 Super Simple Summary — Remember This</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            {[
+              { icon: "📢", line1: "SNS", line2: "Shout to everyone", color: "#1a73e8" },
+              { icon: "📬", line1: "SQS", line2: "Wait in line to be processed", color: "#0f9d58" },
+              { icon: "🧭", line1: "EventBridge", line2: "Decide where events go", color: "#FF9900" },
+            ].map(({ icon, line1, line2, color }) => (
+              <div key={line1} style={{ textAlign: "center", background: "rgba(255,255,255,0.06)", borderRadius: 7, padding: "10px 8px" }}>
+                <div style={{ fontSize: 28, marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color }}>{line1}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", marginTop: 3 }}>{line2}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <Callout icon="🎯" label="Exam Tip"
-          text="SQS = store messages in a queue, consumer pulls when ready (decoupling). SNS = push notifications immediately to many subscribers (fan-out). EventBridge = intelligent event routing with rules and filters (event-driven architecture)." />
+          text="SQS = queue, pull-based, one consumer per message, persistent, for decoupling and background jobs. SNS = pub/sub, push-based, all subscribers get it, for fan-out notifications. EventBridge = event bus, rule-based routing, many-to-many, for complex event-driven architectures." />
       </div>
     );
 
