@@ -4,6 +4,7 @@ import Module2 from "./Module2";
 import Module3 from "./Module3";
 import Module4 from "./Module4";
 import Module5 from "./Module5";
+import Quiz from "./Quiz_Modules1to3";
 
 const accent = "#FF9900";
 
@@ -16,6 +17,10 @@ const modules = [
   { id: 6, emoji: "💾", title: "Module 6", subtitle: "Storage", topics: ["Amazon S3", "EBS", "EFS", "S3 Classes", "Glacier", "Storage Gateway"], color: "#00838f", status: "up next", component: null },
   { id: 7, emoji: "🗃️", title: "Module 7", subtitle: "Databases", topics: ["RDS", "DynamoDB", "Aurora", "Redshift", "ElastiCache", "DMS"], color: "#e65100", status: "coming", component: null },
   { id: 8, emoji: "💰", title: "Module 8", subtitle: "Pricing, Support & Billing", topics: ["Pricing Models", "Cost Explorer", "Budgets", "Support Plans", "Trusted Advisor", "Free Tier"], color: "#2e7d32", status: "coming", component: null },
+{ id: 9, emoji: "📝", title: "Quiz", subtitle: "Modules 1–3 Practice Exam",
+  topics: ["25 Questions", "Scored", "Justified Answers"],
+  color: "#d32f2f", status: "complete", component: Quiz },
+
 ];
 
 const completedCount = modules.filter(m => m.status === "complete").length;
