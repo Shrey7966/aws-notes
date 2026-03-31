@@ -458,92 +458,260 @@ function SectionContent({ id }) {
     case "subnets": return (
       <div>
         <Body>
-          Subnets are <b>segments of IP addresses within your VPC</b>. They let you group resources
-          and control whether those resources can be accessed from the internet or only internally.
-          Every subnet lives in exactly one Availability Zone.
+          A subnet is a <b>section of your VPC where you group resources</b> based on security or operational needs.
+          Think of your VPC as a building — subnets are the rooms inside. Some rooms are open to the public (reception),
+          others are private (server room).
         </Body>
-        <H2>Public vs Private Subnets</H2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 8 }}>
-          {[
-            {
-              type: "🌐 Public Subnet", color: "#0f9d58",
-              def: "Has a route to the Internet Gateway. Resources here are reachable from the internet.",
-              uses: ["Web servers", "Load balancers (ELB)", "NAT Gateway", "Bastion hosts"],
-              diagram: "Drawn with DASHED borders in AWS diagrams",
-              example: "Your e-commerce website's frontend EC2 servers serving customer traffic.",
-            },
-            {
-              type: "🔒 Private Subnet", color: "#1a73e8",
-              def: "No route to the Internet Gateway. Resources here cannot be reached from the internet.",
-              uses: ["Databases (RDS)", "Application servers", "Internal microservices", "Cache layers"],
-              diagram: "Drawn with SOLID borders in AWS diagrams",
-              example: "Your database storing customer orders — never directly exposed to the internet.",
-            },
-          ].map(({ type, color, def, uses, diagram, example }) => (
-            <div key={type} style={{ border: `1px solid ${color}30`, borderTop: `3px solid ${color}`, borderRadius: 9, padding: "12px", background: color + "08" }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color, marginBottom: 6 }}>{type}</div>
-              <div style={{ fontSize: 12.5, color: "#555", marginBottom: 8, lineHeight: 1.5 }}>{def}</div>
-              <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 4 }}>Common resources:</div>
-              {uses.map(u => <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {u}</div>)}
-              <div style={{ fontSize: 11, color, marginTop: 6, fontStyle: "italic" }}>📐 {diagram}</div>
-              <div style={{ fontSize: 11.5, color: "#555", marginTop: 6, borderTop: "1px solid #f0f0f0", paddingTop: 6 }}>
-                <b>Real example:</b> {example}
-              </div>
-            </div>
+
+        {/* Screenshot 8 recreated — Public + Private subnet diagram */}
+        <H2>📐 Public vs Private Subnets — Visual</H2>
+        <svg width="100%" viewBox="0 0 500 240" style={{ display: "block", margin: "10px 0", borderRadius: 10, border: "1px solid #e0e0e0" }}>
+          {/* AWS Cloud outer */}
+          <rect x={2} y={2} width={496} height={236} rx="10" fill="#f8f9ff" stroke="#1a73e8" strokeWidth="1" strokeDasharray="5 3" />
+          <text x={14} y={18} fontSize="9" fontWeight="700" fill="#1a73e8">aws  AWS Cloud</text>
+          {/* VPC box */}
+          <rect x={12} y={24} width={476} height={208} rx="8" fill="white" stroke="#6a1b9a" strokeWidth="1.5" />
+          <text x={38} y={40} fontSize="9" fontWeight="700" fill="#6a1b9a">☁️  Amazon VPC (10.0.0.0/16)</text>
+          {/* Internet Gateway on left */}
+          <rect x={22} y={110} width={55} height={42} rx="8" fill="#E8EAF6" stroke="#3949ab" strokeWidth="1" />
+          <text x={49} y={127} textAnchor="middle" fontSize="16">🚪</text>
+          <text x={49} y={140} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#3949ab">Internet</text>
+          <text x={49} y={149} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#3949ab">gateway</text>
+          {/* Arrow from IGW to public subnet */}
+          <line x1={78} y1={131} x2={108} y2={131} stroke="#0f9d58" strokeWidth="1.5" />
+          <polygon points="108,127 108,135 114,131" fill="#0f9d58" />
+          {/* Public subnet — dashed green border (as in screenshot) */}
+          <rect x={115} y={60} width={165} height={85} rx="7" fill="#E8F5E9" stroke="#0f9d58" strokeWidth="1.5" strokeDasharray="5 3" />
+          <text x={130} y={76} fontSize="8" fontWeight="700" fill="#0f9d58">🔒  Public subnet</text>
+          <text x={130} y={88} fontSize="7.5" fill="#888">10.0.1.0/24</text>
+          {/* EC2 icons */}
+          {[140, 185, 230].map((x, i) => (
+            <g key={i}>
+              <rect x={x} y={95} width={28} height={22} rx="4" fill="#FF990030" stroke="#FF9900" strokeWidth="0.8" />
+              <text x={x+14} y={110} textAnchor="middle" fontSize="11">🖥️</text>
+            </g>
           ))}
-        </div>
-        <H2>How Subnets Map to Availability Zones</H2>
-        <Body>
-          Each subnet is locked to <b>one AZ</b>. For high availability, you create the same subnet type
-          in multiple AZs — e.g., a public subnet in AZ-a AND a public subnet in AZ-b.
-          If AZ-a fails, traffic shifts to AZ-b automatically.
-        </Body>
-        <div style={{ background: "#f5f5f5", borderRadius: 8, padding: "10px 14px", marginTop: 8, fontFamily: "monospace", fontSize: 12 }}>
-          <div style={{ color: "#6a1b9a", fontWeight: 700 }}>VPC (10.0.0.0/16)</div>
-          <div style={{ marginLeft: 12 }}>
-            <span style={{ color: "#0f9d58" }}>├── Public Subnet AZ-a</span> <span style={{ color: "#888" }}>(10.0.1.0/24) → Web servers</span><br />
-            <span style={{ color: "#0f9d58" }}>├── Public Subnet AZ-b</span> <span style={{ color: "#888" }}>(10.0.2.0/24) → Web servers</span><br />
-            <span style={{ color: "#1a73e8" }}>├── Private Subnet AZ-a</span> <span style={{ color: "#888" }}>(10.0.3.0/24) → Database primary</span><br />
-            <span style={{ color: "#1a73e8" }}>└── Private Subnet AZ-b</span> <span style={{ color: "#888" }}>(10.0.4.0/24) → Database replica</span>
+          <text x={197} y={136} textAnchor="middle" fontSize="8" fill="#0f9d58">Amazon EC2</text>
+          {/* Private subnet — solid teal border (as in screenshot) */}
+          <rect x={115} y={160} width={165} height={65} rx="7" fill="#E0F2F1" stroke="#00897b" strokeWidth="1.5" />
+          <text x={130} y={176} fontSize="8" fontWeight="700" fill="#00897b">🔒  Private subnet</text>
+          <text x={130} y={188} fontSize="7.5" fill="#888">10.0.2.0/24</text>
+          {/* DB icons */}
+          {[145, 190].map((x, i) => (
+            <g key={i}>
+              <rect x={x} y={192} width={24} height={20} rx="3" fill="#00897b20" stroke="#00897b" strokeWidth="0.8" />
+              <text x={x+12} y={206} textAnchor="middle" fontSize="12">🗄️</text>
+            </g>
+          ))}
+          <text x={197} y={220} textAnchor="middle" fontSize="8" fill="#00897b">Databases</text>
+          {/* Legend */}
+          <line x1={310} y1={80} x2={340} y2={80} stroke="#0f9d58" strokeWidth="1.5" strokeDasharray="5 3" />
+          <text x={345} y={83} fontSize="8.5" fill="#0f9d58">Public subnet (dashed)</text>
+          <line x1={310} y1={97} x2={340} y2={97} stroke="#00897b" strokeWidth="1.5" />
+          <text x={345} y={100} fontSize="8.5" fill="#00897b">Private subnet (solid)</text>
+          <text x={310} y={120} fontSize="8" fill="#555">Public subnets:</text>
+          {["Web servers", "Load Balancers", "NAT Gateway"].map((t, i) => (
+            <text key={t} x={310} y={133 + i * 13} fontSize="7.5" fill="#0f9d58">• {t}</text>
+          ))}
+          <text x={310} y={178} fontSize="8" fill="#555">Private subnets:</text>
+          {["Databases (RDS)", "App servers", "Internal services"].map((t, i) => (
+            <text key={t} x={310} y={191 + i * 13} fontSize="7.5" fill="#00897b">• {t}</text>
+          ))}
+          <text x={250} y={232} textAnchor="middle" fontSize="8" fontWeight="700" fill="#6a1b9a">
+            Public subnet = internet accessible · Private subnet = internal only
+          </text>
+        </svg>
+
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 8 }}>
+          <div style={{ border: "1px solid #0f9d5830", borderTop: "3px solid #0f9d58", borderRadius: 9, padding: "12px" }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "#0f9d58", marginBottom: 6 }}>🌐 Public Subnet</div>
+            <div style={{ fontSize: 12.5, color: "#555", marginBottom: 6, lineHeight: 1.55 }}>Has a route to the Internet Gateway. Anyone on the internet can reach resources here.</div>
+            <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 4 }}>✅ Put here:</div>
+            {["Web servers", "Load balancers (ELB)", "NAT Gateway", "Bastion hosts"].map(u => <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {u}</div>)}
+            <div style={{ fontSize: 11, color: "#0f9d58", marginTop: 6, fontStyle: "italic" }}>📐 Drawn with DASHED borders in AWS diagrams</div>
+          </div>
+          <div style={{ border: "1px solid #00897b30", borderTop: "3px solid #00897b", borderRadius: 9, padding: "12px" }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "#00897b", marginBottom: 6 }}>🔒 Private Subnet</div>
+            <div style={{ fontSize: 12.5, color: "#555", marginBottom: 6, lineHeight: 1.55 }}>No route to the Internet Gateway. Completely isolated from the internet.</div>
+            <div style={{ fontWeight: 700, fontSize: 11, color: "#00897b", marginBottom: 4 }}>✅ Put here:</div>
+            {["Databases (RDS)", "Application servers", "Internal microservices", "Cache layers (Redis)"].map(u => <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {u}</div>)}
+            <div style={{ fontSize: 11, color: "#00897b", marginTop: 6, fontStyle: "italic" }}>📐 Drawn with SOLID borders in AWS diagrams</div>
           </div>
         </div>
+
+        <H2>🔢 What is a CIDR Block? (The IP address range)</H2>
+        <div style={{ background: "#1e1e1e", borderRadius: 10, padding: "14px 16px", marginTop: 6 }}>
+          <div style={{ fontSize: 11, color: "#888", marginBottom: 8 }}>CIDR = Classless Inter-Domain Routing — defines your IP address range</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div>
+              <div style={{ color: "#4EC9B0", fontWeight: 700, fontSize: 12, marginBottom: 6 }}>How to read: 10.0.0.0/16</div>
+              {[
+                ["10.0.0.0", "Starting IP address", "#CE9178"],
+                ["/16", "How many IPs you get (65,536!)", "#FF9900"],
+                ["/24", "Smaller block = 256 IPs", "#9CDCFE"],
+                ["/32", "Single IP address (1 IP)", "#6A9955"],
+              ].map(([code, desc, color]) => (
+                <div key={code} style={{ display: "flex", gap: 8, marginBottom: 5 }}>
+                  <code style={{ background: "#2d2d2d", color, padding: "2px 7px", borderRadius: 4, fontSize: 11.5, minWidth: 70, textAlign: "center" }}>{code}</code>
+                  <span style={{ fontSize: 11.5, color: "rgba(255,255,255,0.65)" }}>{desc}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              <div style={{ color: "#4EC9B0", fontWeight: 700, fontSize: 12, marginBottom: 6 }}>Real VPC Example</div>
+              <div style={{ fontSize: 11.5, color: "#CE9178", marginBottom: 3 }}>VPC: <code style={{ color: "#FF9900" }}>10.0.0.0/16</code> → 65,536 IPs</div>
+              {[
+                ["10.0.1.0/24", "Public subnet AZ-a", "#0f9d58", "256 IPs"],
+                ["10.0.2.0/24", "Public subnet AZ-b", "#0f9d58", "256 IPs"],
+                ["10.0.3.0/24", "Private subnet AZ-a", "#00897b", "256 IPs"],
+                ["10.0.4.0/24", "Private subnet AZ-b", "#00897b", "256 IPs"],
+              ].map(([cidr, label, color, ips]) => (
+                <div key={cidr} style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 3 }}>
+                  <code style={{ color }}>{cidr}</code> <span style={{ color: "#888" }}>→</span> {label} <span style={{ color: "#888" }}>({ips})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginTop: 10, background: "#2d2d2d", borderRadius: 6, padding: "8px 12px", fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
+            💡 <b style={{ color: accent }}>Simple rule:</b> The number after / = how many bits are fixed. Bigger number = fewer IPs. /16 = huge VPC. /24 = normal subnet. /32 = single IP.
+          </div>
+        </div>
+
+        <H2>🗺️ What is a Route Table?</H2>
+        <div style={{ background: "#f9f9f9", borderRadius: 9, padding: "12px 14px", marginTop: 4, border: "1px solid #e0e0e0" }}>
+          <div style={{ fontSize: 13, color: "#555", lineHeight: 1.7, marginBottom: 10 }}>
+            A route table is like a <b>GPS for your network traffic</b>. It contains rules (routes) that tell AWS:
+            "when traffic wants to go to THIS destination, send it THAT way."
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 5 }}>📋 Public Route Table (for public subnets)</div>
+              <div style={{ background: "white", borderRadius: 7, border: "1px solid #e0e0e0", overflow: "hidden" }}>
+                {[["Destination", "Target", "Purpose"],
+                  ["10.0.0.0/16", "local", "Stay within VPC"],
+                  ["0.0.0.0/0", "igw-xxxxx", "Everything else → Internet!"],
+                ].map((row, i) => (
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: i < 2 ? "1px solid #f0f0f0" : "none", background: i === 0 ? "#1a73e820" : "white" }}>
+                    {row.map((cell, j) => (
+                      <div key={j} style={{ padding: "5px 7px", fontSize: i === 0 ? 10 : 11, fontWeight: i === 0 ? 700 : 400, color: i === 0 ? "#1a73e8" : j === 1 ? "#0f9d58" : "#555", borderRight: j < 2 ? "1px solid #f0f0f0" : "none" }}>{cell}</div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: "#0f9d58", marginTop: 4, fontStyle: "italic" }}>↑ The 0.0.0.0/0 → IGW rule makes this subnet PUBLIC</div>
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#00897b", marginBottom: 5 }}>📋 Private Route Table (for private subnets)</div>
+              <div style={{ background: "white", borderRadius: 7, border: "1px solid #e0e0e0", overflow: "hidden" }}>
+                {[["Destination", "Target", "Purpose"],
+                  ["10.0.0.0/16", "local", "Stay within VPC only"],
+                  ["(nothing else)", "—", "No internet route!"],
+                ].map((row, i) => (
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: i < 2 ? "1px solid #f0f0f0" : "none", background: i === 0 ? "#00897b20" : "white" }}>
+                    {row.map((cell, j) => (
+                      <div key={j} style={{ padding: "5px 7px", fontSize: i === 0 ? 10 : 11, fontWeight: i === 0 ? 700 : 400, color: i === 0 ? "#00897b" : j === 1 ? "#d32f2f" : "#555", borderRight: j < 2 ? "1px solid #f0f0f0" : "none" }}>{cell}</div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 11, color: "#00897b", marginTop: 4, fontStyle: "italic" }}>↑ No IGW route = private, internet can't reach it</div>
+            </div>
+          </div>
+        </div>
+
         <Callout icon="🎯" label="Exam Tip"
-          text="Public subnet = internet accessible, has Internet Gateway route. Private subnet = no internet access, for databases and internal services. Subnets span ONE AZ only. Deploy across multiple AZs for high availability." color={accent} />
+          text="Public subnet = has 0.0.0.0/0 → Internet Gateway route in its route table. Private subnet = no such route. CIDR /16 = 65,536 IPs (VPC level). /24 = 256 IPs (subnet level). Each subnet must be associated with exactly ONE route table." color={accent} />
       </div>
     );
 
     case "gateways": return (
       <div>
         <Body>
-          Gateways are the <b>entry and exit points</b> of your VPC. The type of gateway you attach
-          determines who can access your VPC and how traffic flows in and out.
+          Gateways are the <b>doors in and out of your VPC</b>. The type of door determines who can enter,
+          and how traffic travels to get there.
         </Body>
-        <H2>Internet Gateway vs Virtual Private Gateway</H2>
-        <GatewaysDiagram />
-        <KV rows={[
-          ["Internet Gateway (IGW)", "Connects your VPC to the public internet. Attach to VPC to allow public traffic in/out. Required for any public subnet.", "#0f9d58"],
-          ["Virtual Private Gateway (VPG)", "Connects your VPC to a private network (corporate data center) via an encrypted VPN tunnel. Traffic goes over the public internet but is encrypted.", "#d32f2f"],
-          ["AWS Direct Connect", "Connects your VPC to your corporate network via a dedicated private fiber line — NOT over the public internet. Faster, more consistent.", "#1a73e8"],
-          ["NAT Gateway", "Lets private subnet resources initiate outbound internet requests (e.g., software updates) WITHOUT exposing them to inbound internet traffic.", "#FF9900"],
-        ]} />
-        <H2>The VPN Deep Dive</H2>
-        <Analogy icon="🏢" label="Corporate Building Analogy"
-          text="A VPN is like a secure tunnel from your office to a private coffee shop inside a corporate building. You can only enter if you badge in (authentication). Even though you're travelling through public streets (internet) to get there, no one can see inside your encrypted tunnel. But — you still share the road (bandwidth) with everyone else, so traffic jams (congestion) can happen."
-          color="#d32f2f" />
-        <H2>When to Use Each</H2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 6 }}>
-          {[
-            { title: "Use VPN when:", color: "#FF9900", items: ["Secure but flexible connection", "Remote employees accessing AWS", "Small-to-medium data transfers", "Quick setup needed", "Cost-sensitive (cheaper than Direct Connect)"] },
-            { title: "Use Direct Connect when:", color: "#1a73e8", items: ["Massive data transfers (TB+)", "Consistent high bandwidth needed", "Low latency is critical", "Compliance requires private connectivity", "Application performance is paramount"] },
-          ].map(({ title, color, items }) => (
-            <div key={title} style={{ border: `1px solid ${color}30`, borderTop: `3px solid ${color}`, borderRadius: 8, padding: "10px 12px" }}>
-              <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 6 }}>{title}</div>
-              {items.map(i => <div key={i} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>✓ {i}</div>)}
-            </div>
+
+        {/* Screenshot 3 recreated — Internet Gateway flow */}
+        <H2>🌐 Internet Gateway — Public Traffic</H2>
+        <svg width="100%" viewBox="0 0 500 110" style={{ display: "block", margin: "8px 0", borderRadius: 10, border: "1px solid #e0e0e0", background: "white" }}>
+          {/* Client */}
+          <rect x={10} y={30} width={60} height={50} rx="6" fill="#f5f5f5" stroke="#ddd" strokeWidth="1" />
+          <text x={40} y={52} textAnchor="middle" fontSize="18">💻</text>
+          <text x={40} y={70} textAnchor="middle" fontSize="8" fill="#555">Client</text>
+          {/* Arrow + Internet */}
+          <line x1={72} y1={55} x2={108} y2={55} stroke="#888" strokeWidth="1.2" />
+          <text x={90} y={47} textAnchor="middle" fontSize="7.5" fill="#888">Internet</text>
+          <polygon points="108,51 108,59 114,55" fill="#888" />
+          {/* IGW */}
+          <circle cx={130} cy={55} r={18} fill="#E8EAF6" stroke="#3949ab" strokeWidth="1.5" />
+          <text x={130} y={60} textAnchor="middle" fontSize="16">🚪</text>
+          <text x={130} y={85} textAnchor="middle" fontSize="8" fontWeight="700" fill="#3949ab">Internet</text>
+          <text x={130} y={95} textAnchor="middle" fontSize="8" fontWeight="700" fill="#3949ab">gateway</text>
+          {/* Arrow to VPC */}
+          <line x1={150} y1={55} x2={188} y2={55} stroke="#0f9d58" strokeWidth="1.5" />
+          <polygon points="188,51 188,59 194,55" fill="#0f9d58" />
+          {/* VPC + subnet */}
+          <rect x={196} y={14} width={290} height={82} rx="8" fill="#f9f9f9" stroke="#6a1b9a" strokeWidth="1.2" />
+          <text x={210} y={28} fontSize="8" fontWeight="700" fill="#6a1b9a">Amazon VPC</text>
+          <rect x={210} y={34} width={265} height={55} rx="6" fill="#E8F5E9" stroke="#0f9d58" strokeWidth="1" strokeDasharray="4 2" />
+          <text x={222} y={47} fontSize="7.5" fontWeight="700" fill="#0f9d58">🔒 Public Subnet</text>
+          {[240, 295, 350, 405].map((x, i) => (
+            <g key={i}>
+              <rect x={x} y={52} width={34} height={24} rx="4" fill="#FF990025" stroke="#FF9900" strokeWidth="0.8" />
+              <text x={x+17} y={67} textAnchor="middle" fontSize="11">🖥️</text>
+            </g>
           ))}
-        </div>
+          <text x={340} y={85} textAnchor="middle" fontSize="8" fill="#0f9d58">Amazon EC2 instances</text>
+          <text x={340} y={100} textAnchor="middle" fontSize="7.5" fill="#555">A client sends a request through the internet into the VPC via the Internet Gateway.</text>
+        </svg>
+
+        {/* Screenshot 4 recreated — Virtual Private Gateway / VPN */}
+        <H2>🔒 Virtual Private Gateway — Private/VPN Traffic</H2>
+        <svg width="100%" viewBox="0 0 500 130" style={{ display: "block", margin: "8px 0", borderRadius: 10, border: "1px solid #e0e0e0", background: "white" }}>
+          {/* Corporate DC */}
+          <rect x={10} y={20} width={110} height={90} rx="8" fill="#f5f5f5" stroke="#546e7a" strokeWidth="1.2" />
+          <text x={65} y={40} textAnchor="middle" fontSize="9" fontWeight="700" fill="#546e7a">Corporate</text>
+          <text x={65} y={52} textAnchor="middle" fontSize="9" fontWeight="700" fill="#546e7a">data center</text>
+          <text x={65} y={68} textAnchor="middle" fontSize="16">🏢</text>
+          <text x={65} y={88} textAnchor="middle" fontSize="8" fill="#546e7a">Content router</text>
+          <text x={65} y={98} textAnchor="middle" fontSize="8" fill="#546e7a">or firewall</text>
+          {/* Internet + VPN labels */}
+          <text x={155} y={48} textAnchor="middle" fontSize="8" fill="#888">☁️ Internet</text>
+          <text x={155} y={75} textAnchor="middle" fontSize="8" fill="#6a1b9a">🔐 VPN</text>
+          <text x={155} y={86} textAnchor="middle" fontSize="8" fill="#6a1b9a">connection</text>
+          {/* Arrow */}
+          <line x1={122} y1={65} x2={190} y2={65} stroke="#6a1b9a" strokeWidth="1.5" strokeDasharray="5 3" />
+          <polygon points="190,61 190,69 196,65" fill="#6a1b9a" />
+          {/* VPG */}
+          <circle cx={215} cy={65} r={20} fill="#EDE7F6" stroke="#6a1b9a" strokeWidth="1.5" />
+          <text x={215} y={70} textAnchor="middle" fontSize="18">🔒</text>
+          <text x={215} y={94} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#6a1b9a">Virtual</text>
+          <text x={215} y={104} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#6a1b9a">private gateway</text>
+          {/* Arrow to VPC */}
+          <line x1={237} y1={65} x2={268} y2={65} stroke="#6a1b9a" strokeWidth="1.5" />
+          <polygon points="268,61 268,69 274,65" fill="#6a1b9a" />
+          {/* VPC + private subnet */}
+          <rect x={276} y={14} width={215} height={102} rx="8" fill="#f9f9f9" stroke="#6a1b9a" strokeWidth="1.2" />
+          <text x={290} y={30} fontSize="8" fontWeight="700" fill="#6a1b9a">Amazon VPC</text>
+          <rect x={290} y={36} width={190} height={72} rx="6" fill="#E0F2F1" stroke="#00897b" strokeWidth="1" />
+          <text x={305} y={50} fontSize="7.5" fontWeight="700" fill="#00897b">🔒 Private Subnet</text>
+          {[310, 360, 410].map((x, i) => (
+            <g key={i}>
+              <rect x={x} y={55} width={28} height={20} rx="3" fill="#00897b20" stroke="#00897b" strokeWidth="0.8" />
+              <text x={x+14} y={68} textAnchor="middle" fontSize="11">🗄️</text>
+            </g>
+          ))}
+          <text x={385} y={95} textAnchor="middle" fontSize="7.5" fill="#00897b">Databases</text>
+          <text x={250} y={124} textAnchor="middle" fontSize="7.5" fill="#555">VPN travels over internet (encrypted) → Virtual Private Gateway → Private subnet</text>
+        </svg>
+
+        <KV rows={[
+          ["Internet Gateway (IGW)", "Connects VPC to public internet. Required for public subnets. Like the front door of a coffee shop — anyone can walk in.", "#0f9d58"],
+          ["Virtual Private Gateway", "AWS side of a VPN connection. Only approved corporate networks get in. Like a badge-controlled side entrance.", "#6a1b9a"],
+          ["NAT Gateway", "Lets private subnet resources call outbound internet (updates, APIs) WITHOUT being reachable from internet inbound.", "#FF9900"],
+        ]} />
         <Callout icon="🎯" label="Exam Tip"
-          text="Internet Gateway = public internet access for your VPC. Virtual Private Gateway = encrypted VPN connection from corporate to VPC (over internet). Direct Connect = dedicated private fiber (not internet). NAT Gateway = lets private resources access internet without being exposed." color={accent} />
+          text="Internet Gateway = public internet traffic. Virtual Private Gateway = encrypted VPN from corporate DC to VPC (still travels over internet). VPN uses internet but encrypts the tunnel. Direct Connect = completely bypasses internet with private fiber." color={accent} />
       </div>
     );
 
@@ -706,135 +874,268 @@ function SectionContent({ id }) {
     case "connections": return (
       <div>
         <Body>
-          Companies have many different types of networks, data centers, branch offices, and remote workers.
-          AWS provides <b>4 dedicated connection options</b> to securely connect all of them to your VPC.
+          Companies have offices, data centers, remote workers, and other cloud accounts.
+          AWS gives you <b>4 different ways to connect all of them</b> to your VPC — each designed for a different scenario.
+          Understanding WHICH to use WHEN is the key.
         </Body>
 
-        {/* Overview diagram */}
-        <div style={{ background: "#f5f5f5", borderRadius: 10, padding: 12, marginTop: 8 }}>
-          <svg width="100%" viewBox="0 0 520 130" style={{ display: "block" }}>
-            {/* VPC cloud */}
-            <rect x={180} y={10} width={160} height={70} rx="10" fill="#ede7f6" stroke="#6a1b9a" strokeWidth="1.3" />
-            <text x={260} y={32} textAnchor="middle" fontSize="9" fontWeight="700" fill="#6a1b9a">VPC</text>
-            <text x={260} y={48} textAnchor="middle" fontSize="18">☁️</text>
-            <text x={260} y={68} textAnchor="middle" fontSize="7.5" fill="#555">Your AWS resources</text>
-            {/* 4 sources */}
+        {/* The confusion-busting mega comparison */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 8, marginBottom: 14 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 10 }}>🧠 The Simple Version — Before diving in</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
             {[
-              { x: 30, y: 20, icon: "👤", label: "Remote\nWorkers", color: "#1a73e8", cx1: 90, cy1: 40, cx2: 178, cy2: 35 },
-              { x: 30, y: 75, icon: "🏢", label: "Branch\nOffice", color: "#0f9d58", cx1: 90, cy1: 90, cx2: 178, cy2: 55 },
-              { x: 390, y: 20, icon: "🏭", label: "Data\nCenter", color: "#FF9900", cx1: 430, cy1: 40, cx2: 342, cy2: 35 },
-              { x: 390, y: 75, icon: "🔗", label: "Other\nVPCs", color: "#d32f2f", cx1: 430, cy1: 90, cx2: 342, cy2: 55 },
-            ].map(({ x, y, icon, label, color, cx1, cy1, cx2, cy2 }, i) => (
-              <g key={i}>
-                <rect x={x} y={y} width={58} height={42} rx="7" fill={color + "20"} stroke={color} strokeWidth="1" />
-                <text x={x + 29} y={y + 16} textAnchor="middle" fontSize="14">{icon}</text>
-                {label.split("\n").map((l, j) => (
-                  <text key={j} x={x + 29} y={y + 28 + j * 11} textAnchor="middle" fontSize="7.5" fill={color}>{l}</text>
-                ))}
-                <line x1={cx1} y1={cy1} x2={cx2} y2={cy2} stroke={color} strokeWidth="1.2" strokeDasharray="4 2" />
-              </g>
+              { icon: "👤", name: "Client VPN", q: "Who uses it?", a: "Individual remote workers", color: "#1a73e8" },
+              { icon: "🏢", name: "Site-to-Site VPN", q: "Who uses it?", a: "Whole offices / data centers", color: "#0f9d58" },
+              { icon: "🔗", name: "PrivateLink", q: "Who uses it?", a: "VPCs talking to other VPCs/services", color: "#d32f2f" },
+              { icon: "⚡", name: "Direct Connect", q: "Who uses it?", a: "High-volume data center traffic", color: "#FF9900" },
+            ].map(({ icon, name, q, a, color }) => (
+              <div key={name} style={{ background: color + "20", border: `1px solid ${color}40`, borderRadius: 8, padding: "10px 8px", textAlign: "center" }}>
+                <div style={{ fontSize: 22, marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 6 }}>{name}</div>
+                <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.5)", marginBottom: 2 }}>{q}</div>
+                <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.85)", lineHeight: 1.4 }}>{a}</div>
+              </div>
             ))}
-            {/* Labels for connections */}
-            <text x={135} y={28} textAnchor="middle" fontSize="7.5" fill="#1a73e8">Client VPN</text>
-            <text x={135} y={82} textAnchor="middle" fontSize="7.5" fill="#0f9d58">Site-to-Site VPN</text>
-            <text x={380} y={28} textAnchor="middle" fontSize="7.5" fill="#FF9900">Direct Connect</text>
-            <text x={380} y={82} textAnchor="middle" fontSize="7.5" fill="#d32f2f">PrivateLink</text>
-            <text x={260} y={110} textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#333">4 Ways to Connect to Your VPC</text>
-          </svg>
+          </div>
         </div>
 
-        <H2>The 4 Connection Options — Deep Dive</H2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
-          {[
-            {
-              name: "AWS Client VPN", icon: "👤", color: "#1a73e8",
-              tag: "Remote Workers → VPC",
-              what: "Fully managed, elastic VPN service that lets remote workers securely connect to AWS resources or on-premises networks from anywhere. Uses OpenVPN-based client. Auto-scales based on demand — no hardware to manage.",
-              benefits: ["Advanced authentication (MFA, certificates)", "Elastic — scales up/down automatically", "Works with AWS global network"],
-              useCase: "A company acquires 500 remote employees who need immediate access to AWS resources. Client VPN lets them all connect securely from their laptops within minutes.",
-              best: "Remote employees, work-from-home access, contractor access",
-            },
-            {
-              name: "AWS Site-to-Site VPN", icon: "🏢", color: "#0f9d58",
-              tag: "Office/Data Center ↔ VPC",
-              what: "Creates a secure, encrypted connection between your corporate data center or branch offices and your AWS VPC. Traffic travels over the public internet but inside an encrypted tunnel. One VPG connects to multiple sites.",
-              benefits: ["High availability — automatic failover", "Secure encrypted private sessions", "Accelerates application performance"],
-              useCase: "A manufacturing company connects their factory floor systems, data center, and branch offices all to one central VPC. Each site gets its own VPN connection to the Virtual Private Gateway.",
-              best: "Application migration, multi-site secure communication, hybrid cloud",
-            },
-            {
-              name: "AWS PrivateLink", icon: "🔗", color: "#d32f2f",
-              tag: "VPC → Other VPCs/Services (no internet)",
-              what: "Privately connect your VPC to AWS services, other VPCs, or third-party services as if they were in your own VPC. No internet gateway, NAT device, or VPN needed. Controls specific API endpoints reachable from your VPC.",
-              benefits: ["No traffic over the public internet", "Simplified management rules", "Secure traffic between VPCs"],
-              useCase: "A SaaS company wants to expose their service to customer VPCs privately. PrivateLink lets customers connect directly without routing through the internet or setting up complex VPN connections.",
-              best: "VPC-to-VPC connectivity, accessing AWS services privately, SaaS integrations",
-            },
-            {
-              name: "AWS Direct Connect", icon: "⚡", color: "#FF9900",
-              tag: "Data Center → VPC (dedicated fiber)",
-              what: "Dedicated private fiber connection from your data center to AWS — completely bypassing the public internet. Works through a Direct Connect partner. Traffic: Corporate DC → Partner Router → AWS DX Endpoint → Virtual Private Gateway → VPC.",
-              benefits: ["Reduces network costs at high volume", "Increases bandwidth (1–100 Gbps)", "Consistent, predictable performance"],
-              useCase: "A media company transfers 500 TB of video footage monthly to AWS for processing. Direct Connect gives them a private 10 Gbps line — far cheaper and faster than internet data transfer at that scale.",
-              best: "Large data transfers, compliance, latency-sensitive apps, consistent bandwidth",
-            },
-          ].map(({ name, icon, color, tag, what, benefits, useCase, best }) => (
-            <div key={name} style={{ border: `1px solid ${color}30`, borderRadius: 10, overflow: "hidden" }}>
-              <div style={{ background: color, padding: "9px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-                <span style={{ fontSize: 20 }}>{icon}</span>
-                <div>
-                  <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>{name}</div>
-                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.8)" }}>{tag}</div>
-                </div>
+        {/* 1. Client VPN — with screenshot 5 style diagram */}
+        <div style={{ border: "1px solid #1a73e830", borderRadius: 10, overflow: "hidden", marginBottom: 10 }}>
+          <div style={{ background: "#1a73e8", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>👤</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>1. AWS Client VPN</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Remote workers → VPC (individual laptops, phones)</div>
+            </div>
+          </div>
+          <div style={{ padding: "12px 14px", background: "white" }}>
+            {/* Screenshot 5 style diagram */}
+            <svg width="100%" viewBox="0 0 460 100" style={{ display: "block", marginBottom: 10 }}>
+              {/* Globe */}
+              <circle cx={200} cy={50} r={40} fill="#00838f20" stroke="#00838f" strokeWidth="1.2" />
+              <ellipse cx={200} cy={50} rx={15} ry={40} fill="none" stroke="#00838f" strokeWidth="0.7" />
+              <line x1={160} y1={50} x2={240} y2={50} stroke="#00838f" strokeWidth="0.7" />
+              <text x={200} y={54} textAnchor="middle" fontSize="11" fontWeight="700" fill="#00838f">🌐</text>
+              {/* Remote workers around the globe */}
+              {[
+                { cx: 70, cy: 20, angle: "↘" }, { cx: 310, cy: 20, angle: "↙" }, { cx: 70, cy: 80, angle: "↗" }, { cx: 310, cy: 80, angle: "↖" },
+              ].map(({ cx, cy }, i) => (
+                <g key={i}>
+                  <circle cx={cx} cy={cy} r={15} fill="#1a73e820" stroke="#1a73e8" strokeWidth="1" />
+                  <text x={cx} y={cy + 5} textAnchor="middle" fontSize="13">👤</text>
+                  <line x1={cx + (cx < 200 ? 14 : -14)} y1={cy} x2={cx < 200 ? 162 : 238} y2={cy < 50 ? 22 : 78} stroke="#1a73e8" strokeWidth="1" strokeDasharray="3 2" />
+                </g>
+              ))}
+              <text x={200} y={93} textAnchor="middle" fontSize="8" fill="#555">Remote workers connect from anywhere via OpenVPN client</text>
+              <text x={378} y={30} fontSize="8" fontWeight="700" fill="#1a73e8">VPC</text>
+              <rect x={360} y={35} width={90} height={35} rx="6" fill="#1a73e820" stroke="#1a73e8" strokeWidth="1" />
+              <text x={405} y={57} textAnchor="middle" fontSize="9" fill="#1a73e8">AWS Resources</text>
+              <line x1={325} y1={50} x2={358} y2={50} stroke="#1a73e8" strokeWidth="1.2" />
+              <polygon points="358,46 358,54 364,50" fill="#1a73e8" />
+            </svg>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ background: "#E3F2FD", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 4 }}>✅ What it is</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>A managed VPN service. Remote workers install an OpenVPN app on their laptop and connect. AWS scales it automatically — no hardware needed.</div>
               </div>
-              <div style={{ padding: "11px 14px", background: "white" }}>
-                <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6, marginBottom: 8 }}>{what}</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-                  <div style={{ background: color + "08", borderRadius: 7, padding: "8px 10px" }}>
-                    <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 4 }}>✅ Benefits</div>
-                    {benefits.map(b => <div key={b} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {b}</div>)}
-                  </div>
-                  <div style={{ background: "#f5f5f5", borderRadius: 7, padding: "8px 10px" }}>
-                    <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 4 }}>💼 Real Scenario</div>
-                    <div style={{ fontSize: 11, color: "#555", lineHeight: 1.5 }}>{useCase}</div>
-                  </div>
-                </div>
-                <div style={{ fontSize: 11, color: color, marginTop: 7, fontStyle: "italic" }}>🎯 Best for: {best}</div>
+              <div style={{ background: "#f5f5f5", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 4 }}>💼 Real Scenario</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>Company acquires 500 remote employees. All need immediate access to internal AWS apps. Client VPN = each person installs VPN app, connects securely in minutes.</div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
 
-        <H2>Quick Decision Guide</H2>
+        {/* 2. Site-to-Site VPN — with screenshot 6 style diagram */}
+        <div style={{ border: "1px solid #0f9d5830", borderRadius: 10, overflow: "hidden", marginBottom: 10 }}>
+          <div style={{ background: "#0f9d58", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>🏢</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>2. AWS Site-to-Site VPN</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Whole offices / data centers → VPC (encrypted tunnel over internet)</div>
+            </div>
+          </div>
+          <div style={{ padding: "12px 14px", background: "white" }}>
+            {/* Screenshot 6 style: multiple sites → VPG → VPC */}
+            <svg width="100%" viewBox="0 0 480 130" style={{ display: "block", marginBottom: 10 }}>
+              {/* Cloud / VPC */}
+              <ellipse cx={240} cy={40} rx={70} ry={38} fill="#e8f5e9" stroke="#0f9d58" strokeWidth="1.5" />
+              <text x={240} y={32} textAnchor="middle" fontSize="9" fontWeight="700" fill="#0f9d58">VPC</text>
+              <text x={240} y={46} textAnchor="middle" fontSize="16">☁️</text>
+              <text x={240} y={62} textAnchor="middle" fontSize="8" fill="#0f9d58">Virtual private gateway</text>
+              {/* VPN connections label */}
+              <text x={240} y={82} textAnchor="middle" fontSize="8" fill="#888">VPN connections</text>
+              {/* Three sites at bottom */}
+              {[
+                { x: 35, label: "Branch\noffice", icon: "🏠", color: "#1565c0" },
+                { x: 185, label: "Data\ncenter", icon: "🏢", color: "#0f9d58" },
+                { x: 335, label: "Manufacturing\nsite", icon: "🏭", color: "#6a1b9a" },
+              ].map(({ x, label, icon, color }) => (
+                <g key={label}>
+                  <rect x={x} y={90} width={90} height={34} rx="8" fill={color + "25"} stroke={color} strokeWidth="1.2" />
+                  <text x={x + 15} y={112} fontSize="16">{icon}</text>
+                  {label.split("\n").map((l, i) => (
+                    <text key={i} x={x + 50} y={104 + i * 13} textAnchor="middle" fontSize="7.5" fill={color}>{l}</text>
+                  ))}
+                  {/* VPN lock + line to cloud */}
+                  <circle cx={x + 45} cy={82} r={7} fill={color + "30"} stroke={color} strokeWidth="1" />
+                  <text x={x + 45} y={86} textAnchor="middle" fontSize="9">🔐</text>
+                  <line x1={x + 45} y1={73} x2={240} y2={62} stroke={color} strokeWidth="1" strokeDasharray="3 2" />
+                </g>
+              ))}
+              <text x={240} y={126} textAnchor="middle" fontSize="7.5" fill="#555">One VPG in VPC connects to many sites via encrypted VPN tunnels over internet</text>
+            </svg>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 4 }}>✅ Key facts</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>Encrypted tunnel. Travels over public internet. One Virtual Private Gateway connects to many branch offices. Quick to set up. Shared internet bandwidth.</div>
+              </div>
+              <div style={{ background: "#f5f5f5", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 4 }}>💼 Real Scenario</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>Manufacturing company connects 3 sites (factory, HQ, DC) all to AWS. Each site gets its own VPN connection to the same Virtual Private Gateway.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 3. PrivateLink */}
+        <div style={{ border: "1px solid #d32f2f30", borderRadius: 10, overflow: "hidden", marginBottom: 10 }}>
+          <div style={{ background: "#d32f2f", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>🔗</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>3. AWS PrivateLink</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>VPC → other VPCs / AWS services (no internet, no gateway needed)</div>
+            </div>
+          </div>
+          <div style={{ padding: "12px 14px", background: "white" }}>
+            <svg width="100%" viewBox="0 0 460 90" style={{ display: "block", marginBottom: 10 }}>
+              {/* Your VPC */}
+              <rect x={10} y={20} width={130} height={55} rx="8" fill="#fce4ec" stroke="#d32f2f" strokeWidth="1.2" />
+              <text x={75} y={38} textAnchor="middle" fontSize="9" fontWeight="700" fill="#d32f2f">Your VPC</text>
+              <text x={75} y={52} textAnchor="middle" fontSize="13">🖥️</text>
+              <text x={75} y={66} textAnchor="middle" fontSize="8" fill="#d32f2f">Your app</text>
+              {/* PrivateLink tunnel */}
+              <rect x={152} y={35} width={130} height={25} rx="12" fill="#d32f2f15" stroke="#d32f2f" strokeWidth="1.2" strokeDasharray="4 2" />
+              <text x={217} y={51} textAnchor="middle" fontSize="9" fontWeight="700" fill="#d32f2f">🔗 PrivateLink</text>
+              {/* Service VPC */}
+              <rect x={295} y={20} width={155} height={55} rx="8" fill="#fce4ec" stroke="#d32f2f" strokeWidth="1.2" />
+              <text x={372} y={38} textAnchor="middle" fontSize="9" fontWeight="700" fill="#d32f2f">Service VPC / AWS Service</text>
+              <text x={372} y={52} textAnchor="middle" fontSize="13">⚙️</text>
+              <text x={372} y={66} textAnchor="middle" fontSize="8" fill="#d32f2f">S3 / RDS / Partner API</text>
+              <text x={230} y={84} textAnchor="middle" fontSize="8" fill="#555">Private network path — traffic NEVER touches the public internet</text>
+            </svg>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ background: "#fce4ec30", borderRadius: 7, padding: "8px 10px", border: "1px solid #d32f2f20" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#d32f2f", marginBottom: 4 }}>✅ Key facts</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>No internet gateway, no NAT, no public IP needed. Traffic stays on AWS private network. Used to access AWS services (S3, DynamoDB) or other VPCs privately.</div>
+              </div>
+              <div style={{ background: "#f5f5f5", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#d32f2f", marginBottom: 4 }}>💼 Real Scenario</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>SaaS vendor exposes their API to customers' VPCs privately. Customers connect without internet exposure. Much simpler than VPN peering.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 4. Direct Connect — with screenshot 7 style diagram */}
+        <div style={{ border: "1px solid #FF990030", borderRadius: 10, overflow: "hidden", marginBottom: 10 }}>
+          <div style={{ background: "#FF9900", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>⚡</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>4. AWS Direct Connect</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Data center → VPC (dedicated private fiber — NOT internet)</div>
+            </div>
+          </div>
+          <div style={{ padding: "12px 14px", background: "white" }}>
+            {/* Screenshot 7 style diagram */}
+            <svg width="100%" viewBox="0 0 500 110" style={{ display: "block", marginBottom: 10 }}>
+              {/* Corporate DC */}
+              <rect x={5} y={25} width={90} height={60} rx="7" fill="#f5f5f5" stroke="#546e7a" strokeWidth="1" />
+              <text x={50} y={43} textAnchor="middle" fontSize="8" fontWeight="700" fill="#546e7a">Corporate</text>
+              <text x={50} y={54} textAnchor="middle" fontSize="8" fontWeight="700" fill="#546e7a">data center</text>
+              <text x={32} y={68} textAnchor="middle" fontSize="11">🏢</text>
+              <text x={68} y={68} textAnchor="middle" fontSize="8" fill="#546e7a">Router</text>
+              {/* Arrow to DC location */}
+              <line x1={97} y1={55} x2={118} y2={55} stroke="#FF9900" strokeWidth="2" />
+              <polygon points="118,51 118,59 124,55" fill="#FF9900" />
+              {/* DX Location box */}
+              <rect x={126} y={15} width={155} height={80} rx="7" fill="#FFF3E0" stroke="#FF9900" strokeWidth="1.2" strokeDasharray="5 3" />
+              <text x={203} y={30} textAnchor="middle" fontSize="8" fontWeight="700" fill="#FF9900">AWS Direct Connect location</text>
+              <rect x={135} y={36} width={60} height={45} rx="5" fill="white" stroke="#FF9900" strokeWidth="0.7" strokeDasharray="3 2" />
+              <text x={165} y={52} textAnchor="middle" fontSize="7.5" fill="#555">Customer or</text>
+              <text x={165} y={62} textAnchor="middle" fontSize="7.5" fill="#555">partner router</text>
+              <line x1={197} y1={58} x2={218} y2={58} stroke="#FF9900" strokeWidth="1" />
+              <polygon points="218,54 218,62 224,58" fill="#FF9900" />
+              <rect x={226} y={36} width={48} height={45} rx="5" fill="white" stroke="#FF9900" strokeWidth="0.7" strokeDasharray="3 2" />
+              <text x={250} y={52} textAnchor="middle" fontSize="7" fill="#555">AWS Direct</text>
+              <text x={250} y={62} textAnchor="middle" fontSize="7" fill="#555">Connect</text>
+              <text x={250} y={72} textAnchor="middle" fontSize="7" fill="#555">endpoint</text>
+              {/* Arrow to VPG */}
+              <line x1={283} y1={55} x2={308} y2={55} stroke="#FF9900" strokeWidth="2" />
+              <polygon points="308,51 308,59 314,55" fill="#FF9900" />
+              {/* VPG */}
+              <circle cx={328} cy={55} r={16} fill="#EDE7F6" stroke="#6a1b9a" strokeWidth="1.2" />
+              <text x={328} y={60} textAnchor="middle" fontSize="13">🔒</text>
+              <text x={328} y={80} textAnchor="middle" fontSize="7" fontWeight="700" fill="#6a1b9a">Virtual</text>
+              <text x={328} y={89} textAnchor="middle" fontSize="7" fontWeight="700" fill="#6a1b9a">private gateway</text>
+              {/* Arrow to VPC */}
+              <line x1={346} y1={55} x2={368} y2={55} stroke="#6a1b9a" strokeWidth="1.5" />
+              <polygon points="368,51 368,59 374,55" fill="#6a1b9a" />
+              {/* AWS VPC */}
+              <rect x={376} y={14} width={118} height={92} rx="7" fill="#f9f9f9" stroke="#6a1b9a" strokeWidth="1.2" />
+              <text x={435} y={28} textAnchor="middle" fontSize="8" fontWeight="700" fill="#6a1b9a">Amazon VPC</text>
+              <rect x={386} y={34} width={98} height={30} rx="5" fill="#E8F5E9" stroke="#0f9d58" strokeWidth="0.8" strokeDasharray="3 2" />
+              <text x={435} y={48} textAnchor="middle" fontSize="7.5" fill="#0f9d58">🖥️ EC2 Subnet</text>
+              <rect x={386} y={70} width={98} height={28} rx="5" fill="#E0F2F1" stroke="#00897b" strokeWidth="0.8" />
+              <text x={435} y={83} textAnchor="middle" fontSize="7.5" fill="#00897b">🗄️ Private Subnet</text>
+              <text x={250} y={104} textAnchor="middle" fontSize="7.5" fill="#555">Dedicated private fiber — NEVER touches the public internet</text>
+            </svg>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div style={{ background: "#FFF3E0", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 4 }}>✅ Key facts</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>Physical dedicated fiber. NOT over internet. 1–100 Gbps. Consistent speed. Works with a Direct Connect partner. Takes weeks to set up (physical cabling).</div>
+              </div>
+              <div style={{ background: "#f5f5f5", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 4 }}>💼 Real Scenario</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>Media company transfers 500TB/month of video to AWS. Direct Connect 10Gbps line is far faster and cheaper per GB than internet transfer at that volume.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Master comparison table */}
+        <H2>⚖️ All 4 — Side by Side</H2>
         <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 4 }}>
           {[
-            ["Scenario", "Best Option"],
-            ["Remote employees need secure access from home", "AWS Client VPN"],
-            ["Connect branch offices to VPC over internet", "AWS Site-to-Site VPN"],
-            ["Direct Connect fails — need instant backup", "Site-to-Site VPN as failover"],
-            ["VPC needs to access another VPC privately", "AWS PrivateLink"],
-            ["Transfer 100TB/month between DC and AWS", "AWS Direct Connect"],
-            ["Need both high bandwidth AND backup", "Direct Connect + Site-to-Site VPN fallback"],
+            ["", "Client VPN 👤", "Site-to-Site VPN 🏢", "PrivateLink 🔗", "Direct Connect ⚡"],
+            ["Who connects", "Individual remote workers", "Whole offices / data centers", "VPCs to VPCs/services", "Data centers (high volume)"],
+            ["Uses internet?", "Yes (encrypted)", "Yes (encrypted)", "No (private AWS network)", "No (dedicated fiber)"],
+            ["Setup time", "Minutes", "Hours", "Hours", "Weeks (physical)"],
+            ["Speed", "Variable (internet)", "Variable (internet)", "High (private)", "1–100 Gbps (consistent)"],
+            ["Cost", "Per user/hour", "Per connection/hour", "Per endpoint/data", "High upfront + hourly"],
+            ["Best for", "WFH employees", "Branch offices, migration", "Accessing services privately", "Large data transfers, compliance"],
           ].map((row, i) => (
             <div key={i} style={{
-              display: "grid", gridTemplateColumns: "1fr 1fr",
+              display: "grid", gridTemplateColumns: "0.9fr 1fr 1fr 1fr 1fr",
               borderBottom: i < 6 ? "1px solid #f0f0f0" : "none",
               background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
             }}>
               {row.map((cell, j) => (
                 <div key={j} style={{
-                  padding: "7px 12px", fontSize: i === 0 ? 11 : 12.5,
-                  fontWeight: i === 0 ? 700 : j === 1 ? 600 : 400,
-                  color: i === 0 ? accent : j === 1 ? "#6a1b9a" : "#333",
-                  borderRight: j === 0 ? "1px solid #f0f0f0" : "none",
+                  padding: "6px 9px", fontSize: i === 0 ? 10 : 11.5,
+                  fontWeight: i === 0 || j === 0 ? 700 : 400,
+                  color: i === 0 ? ["#FF9900","#5BA3F5","#81C784","#ef9a9a","#FFB74D"][j] || "#FF9900"
+                       : j === 0 ? "#333" : "#555",
+                  borderRight: j < 4 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.4,
                 }}>{cell}</div>
               ))}
             </div>
           ))}
         </div>
 
-        <Callout icon="🎯" label="Exam Tip"
-          text="4 connection types: Client VPN (remote workers), Site-to-Site VPN (offices/DCs over internet), PrivateLink (VPC-to-VPC/services privately), Direct Connect (dedicated fiber). Key distinction: VPN = over internet (encrypted). Direct Connect = NOT internet (dedicated). PrivateLink = no internet, no gateway needed." color="#6a1b9a" />
+        <Callout icon="🎯" label="Exam Tip — The Most Important Distinctions"
+          text="Client VPN = individual remote workers. Site-to-Site VPN = entire offices/DCs, encrypted tunnel over internet. PrivateLink = VPC-to-VPC or VPC-to-service, no internet at all, no gateway needed. Direct Connect = dedicated physical fiber, NOT internet, for huge data volumes. VPN (both types) = uses internet but encrypted. Direct Connect + PrivateLink = never touch the internet." color="#6a1b9a" />
       </div>
     );
 
@@ -1254,89 +1555,189 @@ function SectionContent({ id }) {
     case "cloudfront-accelerator": return (
       <div>
         <Body>
-          Once Route 53 resolves your domain, users need the content delivered fast.
-          <b> Amazon CloudFront</b> and <b>AWS Global Accelerator</b> are the two edge services
-          that make your application fast and reliable for users worldwide.
+          CloudFront and Global Accelerator both make apps faster — but they work completely differently.
+          And both are often confused with Direct Connect and PrivateLink. This section clears all of that up once and for all.
         </Body>
 
-        <H2>Amazon CloudFront — CDN Deep Dive</H2>
-        <Analogy icon="🚚" label="Delivery Truck Network Analogy"
-          text="CloudFront is like a global network of delivery trucks pre-positioned in every city. Instead of all orders shipping from one central warehouse (your origin server), copies of your goods are stored in local depots (edge locations) near customers. Most customers get their order from the local depot in seconds — only new or unusual items need to travel from the central warehouse."
-          color="#d32f2f" />
-        <div style={{ marginTop: 10 }}>
-          <KV rows={[
-            ["What it is", "Content Delivery Network (CDN). Stores copies of content at 400+ edge locations globally. Delivers with low latency.", "#d32f2f"],
-            ["What it caches", "Static: images, CSS, JS, videos, software downloads. Dynamic: API responses, personalised content.", "#1a73e8"],
-            ["Cache HIT", "Content already at edge → served instantly (~5ms). No round-trip to origin needed.", "#0f9d58"],
-            ["Cache MISS", "Edge fetches from origin once → caches it → all future users in that area get it from cache.", "#FF9900"],
-            ["Security", "Integrates with AWS Shield (DDoS), WAF (firewall), and ACM (SSL/TLS certificates). HTTPS by default.", "#6a1b9a"],
-            ["Origin types", "S3 buckets, EC2 instances, ELB, API Gateway, any HTTP server, even non-AWS origins.", "#546e7a"],
-          ]} />
-        </div>
-
-        <H2>CloudFront Real-World Use Cases</H2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 6 }}>
-          {[
-            { icon: "🎬", title: "Streaming Video", color: "#d32f2f",
-              company: "Online workout platform",
-              story: "Uses CloudFront to buffer-free stream HD videos to thousands of simultaneous users during peak exercise hours. Edge locations pre-cache popular videos nearest to users' cities." },
-            { icon: "🛒", title: "E-Commerce", color: "#0f9d58",
-              company: "Online retail store",
-              story: "Delivers product images and web pages instantly during busy shopping seasons. Faster load times reduce abandoned carts and increase conversions." },
-            { icon: "📱", title: "Mobile App", color: "#1a73e8",
-              company: "Travel navigation app",
-              story: "Delivers map tiles and images instantly to phones worldwide. Travellers navigate new cities without frustrating delays even on slower mobile networks." },
-          ].map(({ icon, title, color, company, story }) => (
-            <div key={title} style={{ border: `1px solid ${color}25`, borderTop: `3px solid ${color}`, borderRadius: 8, padding: "10px 12px" }}>
-              <div style={{ fontSize: 22, marginBottom: 4 }}>{icon}</div>
-              <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 3 }}>{title}</div>
-              <div style={{ fontSize: 10.5, fontWeight: 700, color: "#888", marginBottom: 5 }}>📌 {company}</div>
-              <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{story}</div>
+        {/* The BIG confusion-buster */}
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 10 }}>🚨 The Confusion Buster — All 4 services side by side</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 6 }}>
+            {[
+              { icon: "🌍", name: "CloudFront", what: "CDN — caches CONTENT", who: "End users on internet", traffic: "Public internet", example: "Website images/videos", color: "#d32f2f" },
+              { icon: "🚀", name: "Global Accelerator", what: "Routes CONNECTIONS faster", who: "End users on internet", traffic: "AWS private backbone", example: "Gaming, real-time apps", color: "#6a1b9a" },
+              { icon: "⚡", name: "Direct Connect", what: "Physical fiber from DC to AWS", who: "Your corporate data center", traffic: "Dedicated fiber (NOT internet)", example: "Huge data transfers, compliance", color: "#FF9900" },
+              { icon: "🔗", name: "PrivateLink", what: "Private VPC-to-VPC/service", who: "Your apps in VPCs", traffic: "AWS private network (NOT internet)", example: "Accessing AWS services privately", color: "#0f9d58" },
+            ].map(({ icon, name, what, who, traffic, example, color }) => (
+              <div key={name} style={{ background: color + "18", border: `1px solid ${color}40`, borderRadius: 8, padding: "9px 8px" }}>
+                <div style={{ fontSize: 22, textAlign: "center", marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 11, color, textAlign: "center", marginBottom: 6 }}>{name}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 1 }}>What it does:</div>
+                <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.85)", marginBottom: 5, lineHeight: 1.4 }}>{what}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 1 }}>Traffic path:</div>
+                <div style={{ fontSize: 10.5, color, marginBottom: 5, fontWeight: 600, lineHeight: 1.4 }}>{traffic}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 1 }}>Example:</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>{example}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ marginTop: 10, background: "rgba(255,255,255,0.06)", borderRadius: 7, padding: "8px 12px" }}>
+            <div style={{ fontSize: 12, color: "rgba(255,255,255,0.85)", lineHeight: 1.7 }}>
+              <b style={{ color: accent }}>Simple rule to never confuse them again:</b><br />
+              <span style={{ color: "#ef9a9a" }}>CloudFront + Global Accelerator</span> = for your <b>end users</b> around the world (internet-facing)<br />
+              <span style={{ color: "#FF9900" }}>Direct Connect + PrivateLink</span> = for your <b>corporate network or VPCs</b> (private connectivity)
             </div>
+          </div>
+        </div>
+
+        {/* CloudFront */}
+        <H2>🌍 Amazon CloudFront — CDN</H2>
+        <Analogy icon="🚚" label="Delivery Depot Analogy"
+          text="CloudFront is a global network of delivery trucks pre-positioned in 400+ cities. Instead of every customer's order shipping from your one central warehouse (origin server), popular items are stored in local depots (edge locations). Customers get their order from the nearby depot in milliseconds — only brand new items travel from the warehouse."
+          color="#d32f2f" />
+
+        {/* Screenshot 11 style: Route53 → CloudFront flow */}
+        <svg width="100%" viewBox="0 0 500 100" style={{ display: "block", margin: "10px 0", borderRadius: 10, border: "1px solid #e0e0e0", background: "#0f172a" }}>
+          {/* User laptop */}
+          <rect x={10} y={30} width={65} height={45} rx="6" fill="#1e293b" stroke="#4ade80" strokeWidth="1" />
+          <text x={42} y={52} textAnchor="middle" fontSize="18">💻</text>
+          <text x={42} y={68} textAnchor="middle" fontSize="7.5" fill="#4ade80">User</text>
+          <text x={42} y={78} textAnchor="middle" fontSize="7" fill="#888">anywhere</text>
+          {/* Arrow to Route 53 */}
+          <line x1={77} y1={53} x2={108} y2={53} stroke="#4ade80" strokeWidth="1.2" />
+          <polygon points="108,49 108,57 114,53" fill="#4ade80" />
+          <text x={92} y={46} textAnchor="middle" fontSize="7" fill="#888">DNS query</text>
+          {/* Route 53 */}
+          <rect x={116} y={35} width={66} height={40} rx="6" fill="#6d28d9" stroke="#a78bfa" strokeWidth="1" />
+          <text x={149} y={55} textAnchor="middle" fontSize="12">🛡️</text>
+          <text x={149} y={67} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#a78bfa">Route 53</text>
+          {/* Arrow */}
+          <line x1={184} y1={55} x2={212} y2={55} stroke="#a78bfa" strokeWidth="1.2" />
+          <polygon points="212,51 212,59 218,55" fill="#a78bfa" />
+          <text x={197} y={47} textAnchor="middle" fontSize="7" fill="#888">routes to</text>
+          {/* CloudFront */}
+          <rect x={220} y={20} width={100} height={70} rx="8" fill="#1e293b" stroke="#f87171" strokeWidth="1.2" strokeDasharray="4 2" />
+          <text x={270} y={38} textAnchor="middle" fontSize="8" fontWeight="700" fill="#f87171">CloudFront</text>
+          {["Edge 1", "Edge 2", "Edge 3"].map((e, i) => (
+            <rect key={i} x={228} y={43 + i * 15} width={84} height={11} rx="3" fill="#f8717120" stroke="#f87171" strokeWidth="0.7" />
           ))}
+          {["Edge 1", "Edge 2", "Edge 3"].map((e, i) => (
+            <text key={i+"t"} x={270} y={52 + i * 15} textAnchor="middle" fontSize="7" fill="#f87171">{e}</text>
+          ))}
+          {/* Arrow to region */}
+          <line x1={322} y1={55} x2={350} y2={55} stroke="#f87171" strokeWidth="1.2" />
+          <polygon points="350,51 350,59 356,55" fill="#f87171" />
+          <text x={337} y={47} textAnchor="middle" fontSize="7" fill="#888">if cache miss</text>
+          {/* Origin */}
+          <rect x={358} y={20} width={130} height={70} rx="8" fill="#1e293b" stroke="#60a5fa" strokeWidth="1.2" />
+          <text x={423} y={38} textAnchor="middle" fontSize="8" fontWeight="700" fill="#60a5fa">Origin Server</text>
+          <text x={423} y={52} textAnchor="middle" fontSize="10">🗄️</text>
+          <text x={423} y={65} textAnchor="middle" fontSize="7.5" fill="#60a5fa">S3 / EC2 / ELB</text>
+          <text x={423} y={78} textAnchor="middle" fontSize="7" fill="#888">your region</text>
+          <text x={250} y={96} textAnchor="middle" fontSize="7.5" fill="#888">Route 53 → nearest CloudFront edge → origin (only on first request, then cached)</text>
+        </svg>
+
+        <KV rows={[
+          ["What it caches", "Images, CSS, JS, videos, HTML pages, API responses — any web content.", "#d32f2f"],
+          ["Cache HIT", "Content at edge → served in ~5ms. No trip to origin. User gets it instantly.", "#0f9d58"],
+          ["Cache MISS", "Edge fetches from origin ONCE → caches → all future users in that area get it from edge.", "#FF9900"],
+          ["NOT for", "Real-time TCP/UDP connections, gaming, VoIP. Use Global Accelerator for those.", "#546e7a"],
+        ]} />
+
+        {/* Global Accelerator — big clarification section */}
+        <H2>🚀 AWS Global Accelerator — NOT a CDN, NOT Direct Connect</H2>
+        <div style={{ background: "#fce4ec", border: "1px solid #d32f2f30", borderRadius: 9, padding: "11px 14px", marginTop: 4, marginBottom: 10 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: "#d32f2f", marginBottom: 5 }}>⚠️ Common Confusion — Let's fix it right now:</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+            {[
+              ["Global Accelerator vs CloudFront", "CloudFront caches CONTENT (files, videos). Global Accelerator routes CONNECTIONS (TCP/UDP). Neither caches the other's traffic.", "#d32f2f"],
+              ["Global Accelerator vs Direct Connect", "Direct Connect = physical fiber from YOUR data center to AWS. Global Accelerator = faster routing for YOUR USERS' internet traffic. Completely different scenarios.", "#FF9900"],
+              ["Global Accelerator vs PrivateLink", "PrivateLink = VPC-to-VPC or VPC-to-service on AWS network. Global Accelerator = users on the internet getting to your app faster via AWS backbone.", "#6a1b9a"],
+            ].map(([title, desc, color]) => (
+              <div key={title} style={{ border: `1px solid ${color}25`, borderLeft: `3px solid ${color}`, borderRadius: 6, padding: "7px 10px", background: "white" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 3 }}>❌ {title}</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <H2>AWS Global Accelerator</H2>
-        <Analogy icon="🛣️" label="Express Lane Analogy"
-          text="Global Accelerator is like creating private express lanes on the internet highway just for your application. Regular traffic fights through congestion on public roads (internet). Your users get routed onto the AWS private global network immediately — less hops, less congestion, faster and more consistent performance."
+        <Analogy icon="🛣️" label="Express Highway Analogy"
+          text="Imagine the internet is a normal road — lots of traffic lights, congestion, slow spots. Global Accelerator gives your users a secret entrance to the AWS private highway at the nearest city. From there, their traffic zooms along AWS's private backbone with no congestion. They arrive at your app faster and more reliably — without touching the congested public internet for most of the journey."
           color="#6a1b9a" />
-        <div style={{ marginTop: 10 }}>
-          <KV rows={[
-            ["What it is", "Routes application traffic through the AWS global private network — bypassing the public internet for most of the journey.", "#6a1b9a"],
-            ["How it works", "Users connect to the nearest AWS edge location. Traffic then travels on AWS's private backbone to your application endpoint.", "#1a73e8"],
-            ["vs CloudFront", "CloudFront = caches CONTENT at edge. Global Accelerator = routes CONNECTIONS (TCP/UDP) faster via AWS network. Different use cases.", "#FF9900"],
-            ["Health checks", "Monitors endpoints. Instant failover (within ~30 seconds) if an endpoint becomes unhealthy. No DNS TTL delays.", "#0f9d58"],
-            ["Use cases", "Real-time gaming (low latency), financial apps (reliability), VoIP (consistent throughput), anything needing stable TCP/UDP.", "#d32f2f"],
-          ]} />
-        </div>
 
-        <H2>CloudFront vs Route 53 vs Global Accelerator — When to Use Each</H2>
+        {/* Global Accelerator diagram */}
+        <svg width="100%" viewBox="0 0 500 110" style={{ display: "block", margin: "10px 0", borderRadius: 10, border: "1px solid #e0e0e0", background: "white" }}>
+          {/* User */}
+          <circle cx={40} cy={55} r={18} fill="#EDE7F6" stroke="#6a1b9a" strokeWidth="1" />
+          <text x={40} y={59} textAnchor="middle" fontSize="16">👤</text>
+          <text x={40} y={80} textAnchor="middle" fontSize="7.5" fill="#555">User</text>
+          {/* Arrow to edge */}
+          <line x1={60} y1={55} x2={95} y2={55} stroke="#6a1b9a" strokeWidth="1.3" />
+          <polygon points="95,51 95,59 101,55" fill="#6a1b9a" />
+          <text x={77} y={47} textAnchor="middle" fontSize="7.5" fill="#6a1b9a">enters AWS network</text>
+          <text x={77} y={58} textAnchor="middle" fontSize="7" fill="#888">at nearest edge</text>
+          {/* Edge Location */}
+          <rect x={103} y={36} width={80} height={38} rx="7" fill="#EDE7F6" stroke="#6a1b9a" strokeWidth="1.2" />
+          <text x={143} y={53} textAnchor="middle" fontSize="12">🗼</text>
+          <text x={143} y={66} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#6a1b9a">Edge Location</text>
+          {/* AWS private backbone */}
+          <rect x={194} y={44} width={138} height={22} rx="11" fill="#6a1b9a15" stroke="#6a1b9a" strokeWidth="1" />
+          <text x={263} y={58} textAnchor="middle" fontSize="9" fontWeight="700" fill="#6a1b9a">AWS Private Backbone 🚀</text>
+          <line x1={185} y1={55} x2={192} y2={55} stroke="#6a1b9a" strokeWidth="1.3" />
+          <line x1={334} y1={55} x2={342} y2={55} stroke="#6a1b9a" strokeWidth="1.3" />
+          <polygon points="342,51 342,59 348,55" fill="#6a1b9a" />
+          {/* App endpoint */}
+          <rect x={350} y={30} width={140} height={50} rx="8" fill="#EDE7F6" stroke="#6a1b9a" strokeWidth="1.2" />
+          <text x={420} y={50} textAnchor="middle" fontSize="9" fontWeight="700" fill="#6a1b9a">Your App</text>
+          <text x={420} y={63} textAnchor="middle" fontSize="8" fill="#555">(us-east-1 or</text>
+          <text x={420} y={73} textAnchor="middle" fontSize="8" fill="#555">eu-west-1)</text>
+          {/* NO caching label */}
+          <text x={263} y={38} textAnchor="middle" fontSize="8" fill="#d32f2f" fontWeight="700">No caching! Routes TCP/UDP connections.</text>
+          <text x={250} y={100} textAnchor="middle" fontSize="8" fill="#555">Instant failover: if endpoint becomes unhealthy, traffic reroutes in ~30 seconds</text>
+        </svg>
+
+        <KV rows={[
+          ["What it is", "Routes USER traffic through AWS's private global backbone — NOT the public internet for most of the journey.", "#6a1b9a"],
+          ["Does it cache?", "NO. Unlike CloudFront, it does NOT cache anything. It just routes connections faster.", "#d32f2f"],
+          ["Does it replace Direct Connect?", "NO. Direct Connect is for YOUR corporate DC to AWS. Global Accelerator is for YOUR USERS (public internet users) to your app.", "#FF9900"],
+          ["Health checks", "Monitors your app endpoints. If one Region fails, instantly routes users to the next healthy Region (~30s).", "#0f9d58"],
+          ["Best for", "Real-time gaming (low latency), banking apps (reliability), VoIP (stable connections), global APIs (consistent performance).", "#1a73e8"],
+        ]} />
+
+        {/* Final clarification mega table */}
+        <H2>🎯 The Final Reference Table — Never Confuse These Again</H2>
         <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 6 }}>
           {[
-            ["Service", "Type", "Best For", "Not For"],
-            ["Route 53", "DNS", "Domain resolution, routing policies, health checks, failover", "Content caching or acceleration"],
-            ["CloudFront", "CDN", "Caching static/dynamic content, video streaming, websites", "Real-time TCP/UDP apps needing low latency"],
-            ["Global Accelerator", "Network routing", "Real-time apps (gaming, finance, VoIP), instant failover", "Static content delivery (use CloudFront instead)"],
+            ["", "CloudFront 🌍", "Global Accelerator 🚀", "Direct Connect ⚡", "PrivateLink 🔗"],
+            ["Type", "CDN", "Network accelerator", "Private fiber line", "Private endpoint"],
+            ["For whom", "End users on internet", "End users on internet", "Your corporate DC", "Your VPCs/apps"],
+            ["Traffic path", "Internet → Edge cache", "Internet → AWS backbone", "Dedicated fiber (no internet)", "AWS private network"],
+            ["Caches content?", "✅ Yes (CDN)", "❌ No", "❌ No", "❌ No"],
+            ["Use case", "Websites, video, images", "Gaming, VoIP, real-time", "Large data transfers, compliance", "Service-to-service private"],
+            ["Setup", "Minutes", "Minutes", "Weeks (physical)", "Hours"],
           ].map((row, i) => (
             <div key={i} style={{
-              display: "grid", gridTemplateColumns: "1fr 0.7fr 1.5fr 1.3fr",
-              borderBottom: i < 3 ? "1px solid #f0f0f0" : "none",
+              display: "grid", gridTemplateColumns: "0.8fr 1fr 1fr 1fr 1fr",
+              borderBottom: i < 6 ? "1px solid #f0f0f0" : "none",
               background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
             }}>
               {row.map((cell, j) => (
                 <div key={j} style={{
-                  padding: "7px 10px", fontSize: i === 0 ? 10.5 : 12,
+                  padding: "6px 9px", fontSize: i === 0 ? 10 : 11.5,
                   fontWeight: i === 0 || j === 0 ? 700 : 400,
-                  color: i === 0 ? accent : j === 0 ? ["#1a73e8","#d32f2f","#6a1b9a"][i - 1] || "#333" : "#555",
-                  borderRight: j < 3 ? "1px solid #f0f0f0" : "none",
-                  lineHeight: 1.45,
+                  color: i === 0 ? ["#FF9900","#f87171","#c084fc","#FFB74D","#86efac"][j] || "#FF9900"
+                       : j === 0 ? "#333" : "#555",
+                  borderRight: j < 4 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.4,
                 }}>{cell}</div>
               ))}
             </div>
           ))}
         </div>
-        <Callout icon="🎯" label="Exam Tip"
-          text="CloudFront = CDN, caches content, reduces load on origin, works for websites/video/images. Global Accelerator = network routing via AWS private backbone, no caching, for TCP/UDP real-time apps. Route 53 = DNS resolution and traffic routing policies. All three use AWS edge locations but do different jobs." color="#d32f2f" />
+
+        <Callout icon="🎯" label="Exam Tip — The Most Confused Topic"
+          text="CloudFront = CDN, caches content at edge, for websites/media. Global Accelerator = NO caching, routes TCP/UDP through AWS private backbone, for real-time apps. Direct Connect = physical fiber from YOUR data center to AWS (not for end users). PrivateLink = VPC-to-service private connection (not for end users). CloudFront + Global Accelerator = internet-facing (users). Direct Connect + PrivateLink = private connectivity (your network)." color="#d32f2f" />
       </div>
     );
 
