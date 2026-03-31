@@ -374,7 +374,7 @@ function GlobalArchDiagram() {
       <text x={508} y={34} textAnchor="middle" fontSize="8" fontWeight="700" fill="#0f9d58">Region 1</text>
       <text x={508} y={46} textAnchor="middle" fontSize="7" fill="#555">Amazon VPC</text>
       {["AZ 1", "AZ 2", "AZ 3"].map((az, i) => (
-        <rect key={i} x={472 + i * 27} y={52} width={24} height={26} rx="3" fill="#0f9d5820" stroke="#0f9d58" strokeWidth="0.7" />
+        <rect key={i} x={472 + i * 27} y={52} width={24} height={26} rx="3" fill="#0f9d5820" stroke="#0f9d58" strokeWidth="0.7"  />
       ))}
       {["AZ 1", "AZ 2", "AZ 3"].map((az, i) => (
         <text key={i + "t"} x={484 + i * 27} y={69} textAnchor="middle" fontSize="6.5" fill="#0f9d58">{az}</text>
@@ -458,169 +458,200 @@ function SectionContent({ id }) {
     case "subnets": return (
       <div>
         <Body>
-          A subnet is a <b>section of your VPC where you group resources</b> based on security or operational needs.
-          Think of your VPC as a building — subnets are the rooms inside. Some rooms are open to the public (reception),
-          others are private (server room).
+          A <b>subnet</b> is a section of your VPC where you group resources based on security or operational needs.
+          Think of your VPC as an office building — subnets are the floors. Some floors are open to visitors (public),
+          others require a keycard (private).
         </Body>
 
-        {/* Screenshot 8 recreated — Public + Private subnet diagram */}
-        <H2>📐 Public vs Private Subnets — Visual</H2>
-        <svg width="100%" viewBox="0 0 500 240" style={{ display: "block", margin: "10px 0", borderRadius: 10, border: "1px solid #e0e0e0" }}>
-          {/* AWS Cloud outer */}
-          <rect x={2} y={2} width={496} height={236} rx="10" fill="#f8f9ff" stroke="#1a73e8" strokeWidth="1" strokeDasharray="5 3" />
-          <text x={14} y={18} fontSize="9" fontWeight="700" fill="#1a73e8">aws  AWS Cloud</text>
-          {/* VPC box */}
-          <rect x={12} y={24} width={476} height={208} rx="8" fill="white" stroke="#6a1b9a" strokeWidth="1.5" />
-          <text x={38} y={40} fontSize="9" fontWeight="700" fill="#6a1b9a">☁️  Amazon VPC (10.0.0.0/16)</text>
-          {/* Internet Gateway on left */}
-          <rect x={22} y={110} width={55} height={42} rx="8" fill="#E8EAF6" stroke="#3949ab" strokeWidth="1" />
-          <text x={49} y={127} textAnchor="middle" fontSize="16">🚪</text>
-          <text x={49} y={140} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#3949ab">Internet</text>
-          <text x={49} y={149} textAnchor="middle" fontSize="7.5" fontWeight="700" fill="#3949ab">gateway</text>
-          {/* Arrow from IGW to public subnet */}
-          <line x1={78} y1={131} x2={108} y2={131} stroke="#0f9d58" strokeWidth="1.5" />
-          <polygon points="108,127 108,135 114,131" fill="#0f9d58" />
-          {/* Public subnet — dashed green border (as in screenshot) */}
-          <rect x={115} y={60} width={165} height={85} rx="7" fill="#E8F5E9" stroke="#0f9d58" strokeWidth="1.5" strokeDasharray="5 3" />
-          <text x={130} y={76} fontSize="8" fontWeight="700" fill="#0f9d58">🔒  Public subnet</text>
-          <text x={130} y={88} fontSize="7.5" fill="#888">10.0.1.0/24</text>
-          {/* EC2 icons */}
-          {[140, 185, 230].map((x, i) => (
-            <g key={i}>
-              <rect x={x} y={95} width={28} height={22} rx="4" fill="#FF990030" stroke="#FF9900" strokeWidth="0.8" />
-              <text x={x+14} y={110} textAnchor="middle" fontSize="11">🖥️</text>
-            </g>
-          ))}
-          <text x={197} y={136} textAnchor="middle" fontSize="8" fill="#0f9d58">Amazon EC2</text>
-          {/* Private subnet — solid teal border (as in screenshot) */}
-          <rect x={115} y={160} width={165} height={65} rx="7" fill="#E0F2F1" stroke="#00897b" strokeWidth="1.5" />
-          <text x={130} y={176} fontSize="8" fontWeight="700" fill="#00897b">🔒  Private subnet</text>
-          <text x={130} y={188} fontSize="7.5" fill="#888">10.0.2.0/24</text>
-          {/* DB icons */}
-          {[145, 190].map((x, i) => (
-            <g key={i}>
-              <rect x={x} y={192} width={24} height={20} rx="3" fill="#00897b20" stroke="#00897b" strokeWidth="0.8" />
-              <text x={x+12} y={206} textAnchor="middle" fontSize="12">🗄️</text>
-            </g>
-          ))}
-          <text x={197} y={220} textAnchor="middle" fontSize="8" fill="#00897b">Databases</text>
-          {/* Legend */}
-          <line x1={310} y1={80} x2={340} y2={80} stroke="#0f9d58" strokeWidth="1.5" strokeDasharray="5 3" />
-          <text x={345} y={83} fontSize="8.5" fill="#0f9d58">Public subnet (dashed)</text>
-          <line x1={310} y1={97} x2={340} y2={97} stroke="#00897b" strokeWidth="1.5" />
-          <text x={345} y={100} fontSize="8.5" fill="#00897b">Private subnet (solid)</text>
-          <text x={310} y={120} fontSize="8" fill="#555">Public subnets:</text>
-          {["Web servers", "Load Balancers", "NAT Gateway"].map((t, i) => (
-            <text key={t} x={310} y={133 + i * 13} fontSize="7.5" fill="#0f9d58">• {t}</text>
-          ))}
-          <text x={310} y={178} fontSize="8" fill="#555">Private subnets:</text>
-          {["Databases (RDS)", "App servers", "Internal services"].map((t, i) => (
-            <text key={t} x={310} y={191 + i * 13} fontSize="7.5" fill="#00897b">• {t}</text>
-          ))}
-          <text x={250} y={232} textAnchor="middle" fontSize="8" fontWeight="700" fill="#6a1b9a">
-            Public subnet = internet accessible · Private subnet = internal only
-          </text>
-        </svg>
-
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 8 }}>
-          <div style={{ border: "1px solid #0f9d5830", borderTop: "3px solid #0f9d58", borderRadius: 9, padding: "12px" }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: "#0f9d58", marginBottom: 6 }}>🌐 Public Subnet</div>
-            <div style={{ fontSize: 12.5, color: "#555", marginBottom: 6, lineHeight: 1.55 }}>Has a route to the Internet Gateway. Anyone on the internet can reach resources here.</div>
-            <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 4 }}>✅ Put here:</div>
-            {["Web servers", "Load balancers (ELB)", "NAT Gateway", "Bastion hosts"].map(u => <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {u}</div>)}
-            <div style={{ fontSize: 11, color: "#0f9d58", marginTop: 6, fontStyle: "italic" }}>📐 Drawn with DASHED borders in AWS diagrams</div>
+        <H2>📐 AWS Architecture Diagram — Public & Private Subnets</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 16, marginTop: 8, border: "2px solid #6a1b9a" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            <div style={{ background: "#FF9900", borderRadius: 4, padding: "2px 8px", fontSize: 10, fontWeight: 800, color: "white" }}>aws</div>
+            <span style={{ color: "rgba(255,255,255,0.8)", fontSize: 11, fontWeight: 700 }}>AWS Cloud</span>
           </div>
-          <div style={{ border: "1px solid #00897b30", borderTop: "3px solid #00897b", borderRadius: 9, padding: "12px" }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: "#00897b", marginBottom: 6 }}>🔒 Private Subnet</div>
-            <div style={{ fontSize: 12.5, color: "#555", marginBottom: 6, lineHeight: 1.55 }}>No route to the Internet Gateway. Completely isolated from the internet.</div>
-            <div style={{ fontWeight: 700, fontSize: 11, color: "#00897b", marginBottom: 4 }}>✅ Put here:</div>
-            {["Databases (RDS)", "Application servers", "Internal microservices", "Cache layers (Redis)"].map(u => <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 2 }}>• {u}</div>)}
-            <div style={{ fontSize: 11, color: "#00897b", marginTop: 6, fontStyle: "italic" }}>📐 Drawn with SOLID borders in AWS diagrams</div>
+          <div style={{ border: "2px solid #9c27b0", borderRadius: 10, padding: 14, background: "rgba(156,39,176,0.08)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 12 }}>
+              <span style={{ fontSize: 14 }}>☁️</span>
+              <span style={{ color: "#ce93d8", fontSize: 11, fontWeight: 700 }}>Amazon Virtual Private Cloud (VPC) <span style={{ color: "#888", fontWeight: 400 }}>10.0.0.0/16</span></span>
+            </div>
+            <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 4 }}>
+                <div style={{ border: "2px solid #9c27b0", borderRadius: 10, padding: "10px 8px", background: "rgba(156,39,176,0.2)", textAlign: "center", minWidth: 70 }}>
+                  <div style={{ fontSize: 22, marginBottom: 2 }}>🚪</div>
+                  <div style={{ fontSize: 9, color: "#ce93d8", fontWeight: 700, lineHeight: 1.3 }}>Internet<br />gateway</div>
+                </div>
+                <div style={{ width: 2, height: 20, background: "#9c27b0" }} />
+                <div style={{ fontSize: 20 }}>🌐</div>
+                <div style={{ fontSize: 9, color: "#888" }}>Internet</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", color: "#9c27b0", fontSize: 18 }}>→</div>
+              {[
+                { az: "Availability Zone A", subnets: [
+                  { label: "Public subnet 1", cidr: "10.0.1.0/24", resources: ["🖥️ EC2", "🖥️ EC2"], dash: true, color: "#4caf50", bg: "rgba(76,175,80,0.15)" },
+                  { label: "Private subnet 1", cidr: "10.0.3.0/24", resources: ["🗄️ Database", "🗄️ Database"], dash: false, color: "#00bcd4", bg: "rgba(0,188,212,0.15)" },
+                ]},
+                { az: "Availability Zone B", subnets: [
+                  { label: "Public subnet 2", cidr: "10.0.2.0/24", resources: ["🖥️ EC2", "🖥️ EC2"], dash: true, color: "#4caf50", bg: "rgba(76,175,80,0.15)" },
+                  { label: "Private subnet 2", cidr: "10.0.4.0/24", resources: ["🗄️ Database", "🗄️ Database"], dash: false, color: "#00bcd4", bg: "rgba(0,188,212,0.15)" },
+                ]},
+              ].map(({ az, subnets }) => (
+                <div key={az} style={{ flex: 1, border: "1.5px dashed #555", borderRadius: 8, padding: 10 }}>
+                  <div style={{ fontSize: 9, color: "#aaa", fontWeight: 700, marginBottom: 8, textAlign: "center" }}>{az}</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {subnets.map(({ label, cidr, resources, dash, color, bg }) => (
+                      <div key={label} style={{ border: `2px ${dash ? "dashed" : "solid"} ${color}`, borderRadius: 7, padding: "8px 10px", background: bg }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, marginBottom: 4 }}>
+                          <span style={{ fontSize: 11 }}>🔒</span>
+                          <span style={{ fontSize: 9, fontWeight: 700, color }}>{label}</span>
+                        </div>
+                        <div style={{ fontSize: 8, color: "#888", marginBottom: 6 }}>{cidr}</div>
+                        <div style={{ display: "flex", gap: 5, flexWrap: "wrap" }}>
+                          {resources.map((r, i) => (
+                            <div key={i} style={{ background: "rgba(255,255,255,0.1)", border: `1px solid ${color}50`, borderRadius: 5, padding: "4px 7px", fontSize: 10, color: "rgba(255,255,255,0.85)" }}>{r}</div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "flex", gap: 20, marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.1)", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 28, height: 0, border: "2px dashed #4caf50" }} />
+                <span style={{ fontSize: 10, color: "#4caf50" }}>Public subnet — dashed border = internet accessible</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 28, height: 0, border: "2px solid #00bcd4" }} />
+                <span style={{ fontSize: 10, color: "#00bcd4" }}>Private subnet — solid border = no internet</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        <H2>🔢 What is a CIDR Block? (The IP address range)</H2>
-        <div style={{ background: "#1e1e1e", borderRadius: 10, padding: "14px 16px", marginTop: 6 }}>
-          <div style={{ fontSize: 11, color: "#888", marginBottom: 8 }}>CIDR = Classless Inter-Domain Routing — defines your IP address range</div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-            <div>
-              <div style={{ color: "#4EC9B0", fontWeight: 700, fontSize: 12, marginBottom: 6 }}>How to read: 10.0.0.0/16</div>
-              {[
-                ["10.0.0.0", "Starting IP address", "#CE9178"],
-                ["/16", "How many IPs you get (65,536!)", "#FF9900"],
-                ["/24", "Smaller block = 256 IPs", "#9CDCFE"],
-                ["/32", "Single IP address (1 IP)", "#6A9955"],
-              ].map(([code, desc, color]) => (
-                <div key={code} style={{ display: "flex", gap: 8, marginBottom: 5 }}>
-                  <code style={{ background: "#2d2d2d", color, padding: "2px 7px", borderRadius: 4, fontSize: 11.5, minWidth: 70, textAlign: "center" }}>{code}</code>
-                  <span style={{ fontSize: 11.5, color: "rgba(255,255,255,0.65)" }}>{desc}</span>
-                </div>
-              ))}
-            </div>
-            <div>
-              <div style={{ color: "#4EC9B0", fontWeight: 700, fontSize: 12, marginBottom: 6 }}>Real VPC Example</div>
-              <div style={{ fontSize: 11.5, color: "#CE9178", marginBottom: 3 }}>VPC: <code style={{ color: "#FF9900" }}>10.0.0.0/16</code> → 65,536 IPs</div>
-              {[
-                ["10.0.1.0/24", "Public subnet AZ-a", "#0f9d58", "256 IPs"],
-                ["10.0.2.0/24", "Public subnet AZ-b", "#0f9d58", "256 IPs"],
-                ["10.0.3.0/24", "Private subnet AZ-a", "#00897b", "256 IPs"],
-                ["10.0.4.0/24", "Private subnet AZ-b", "#00897b", "256 IPs"],
-              ].map(([cidr, label, color, ips]) => (
-                <div key={cidr} style={{ fontSize: 11, color: "rgba(255,255,255,0.6)", marginBottom: 3 }}>
-                  <code style={{ color }}>{cidr}</code> <span style={{ color: "#888" }}>→</span> {label} <span style={{ color: "#888" }}>({ips})</span>
-                </div>
-              ))}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
+          <div style={{ border: "1px solid #4caf5040", borderTop: "3px solid #4caf50", borderRadius: 9, padding: "12px", background: "rgba(76,175,80,0.04)" }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "#2e7d32", marginBottom: 6 }}>🌐 Public Subnet</div>
+            <div style={{ fontSize: 12.5, color: "#555", marginBottom: 8, lineHeight: 1.55 }}>Has a route to the Internet Gateway. Resources here are <b>reachable from the internet</b>.</div>
+            <div style={{ fontWeight: 700, fontSize: 11, color: "#2e7d32", marginBottom: 4 }}>✅ Place here:</div>
+            {["Web servers (EC2)", "Elastic Load Balancer", "NAT Gateway", "Bastion hosts"].map(u => (
+              <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 3 }}>• {u}</div>
+            ))}
+            <div style={{ fontSize: 11, color: "#4caf50", marginTop: 8, padding: "5px 8px", background: "rgba(76,175,80,0.08)", borderRadius: 5, fontStyle: "italic" }}>
+              📐 DASHED border in AWS diagrams = internet accessible
             </div>
           </div>
-          <div style={{ marginTop: 10, background: "#2d2d2d", borderRadius: 6, padding: "8px 12px", fontSize: 12, color: "rgba(255,255,255,0.8)" }}>
-            💡 <b style={{ color: accent }}>Simple rule:</b> The number after / = how many bits are fixed. Bigger number = fewer IPs. /16 = huge VPC. /24 = normal subnet. /32 = single IP.
+          <div style={{ border: "1px solid #00bcd440", borderTop: "3px solid #00bcd4", borderRadius: 9, padding: "12px", background: "rgba(0,188,212,0.04)" }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "#00697a", marginBottom: 6 }}>🔒 Private Subnet</div>
+            <div style={{ fontSize: 12.5, color: "#555", marginBottom: 8, lineHeight: 1.55 }}>No route to the Internet Gateway. Resources here are <b>completely isolated from the internet</b>.</div>
+            <div style={{ fontWeight: 700, fontSize: 11, color: "#00697a", marginBottom: 4 }}>✅ Place here:</div>
+            {["Databases (RDS, Aurora)", "Application servers", "Internal microservices", "Cache (Redis)"].map(u => (
+              <div key={u} style={{ fontSize: 11.5, color: "#555", marginBottom: 3 }}>• {u}</div>
+            ))}
+            <div style={{ fontSize: 11, color: "#00bcd4", marginTop: 8, padding: "5px 8px", background: "rgba(0,188,212,0.08)", borderRadius: 5, fontStyle: "italic" }}>
+              📐 SOLID border in AWS diagrams = private, no internet
+            </div>
+          </div>
+        </div>
+
+        <H2>🔢 What is a CIDR Block?</H2>
+        <div style={{ background: "#1e1e1e", borderRadius: 10, padding: "16px", marginTop: 6 }}>
+          <div style={{ fontSize: 12, color: "#aaa", marginBottom: 12 }}>
+            CIDR = <span style={{ color: "#4EC9B0" }}>Classless Inter-Domain Routing</span> — defines your IP address range. Like a postcode that covers a whole neighbourhood.
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            <div>
+              <div style={{ color: "#4EC9B0", fontWeight: 700, fontSize: 12, marginBottom: 10 }}>How to read: <code style={{ color: "#FF9900" }}>10.0.0.0/16</code></div>
+              {[
+                ["10.0.0.0", "Starting IP address", "#CE9178"],
+                ["/16", "65,536 total IPs — large VPC", "#FF9900"],
+                ["/24", "256 IPs — typical subnet", "#9CDCFE"],
+                ["/32", "1 single IP address only", "#6A9955"],
+              ].map(([part, meaning, color]) => (
+                <div key={part} style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <code style={{ background: "#2d2d2d", color, padding: "3px 10px", borderRadius: 5, fontSize: 12, minWidth: 65, textAlign: "center", display: "block" }}>{part}</code>
+                  <span style={{ fontSize: 11.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}>{meaning}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: 8, background: "#2d2d2d", borderRadius: 6, padding: "8px 10px", fontSize: 11.5, color: "rgba(255,255,255,0.7)" }}>
+                💡 <b style={{ color: "#FF9900" }}>Rule:</b> Bigger /number = fewer IPs<br />
+                /16 = huge · /24 = subnet · /32 = one IP
+              </div>
+            </div>
+            <div>
+              <div style={{ color: "#4EC9B0", fontWeight: 700, fontSize: 12, marginBottom: 10 }}>Real VPC Example</div>
+              <div style={{ background: "#2d2d2d", borderRadius: 8, padding: "10px 12px" }}>
+                <div style={{ fontSize: 11.5, color: "#CE9178", marginBottom: 8, fontWeight: 700 }}>VPC: <code style={{ color: "#FF9900" }}>10.0.0.0/16</code> = 65,536 IPs</div>
+                {[
+                  ["10.0.1.0/24", "Public Subnet AZ-a", "#4caf50"],
+                  ["10.0.2.0/24", "Public Subnet AZ-b", "#4caf50"],
+                  ["10.0.3.0/24", "Private Subnet AZ-a", "#00bcd4"],
+                  ["10.0.4.0/24", "Private Subnet AZ-b", "#00bcd4"],
+                ].map(([cidr, label, color]) => (
+                  <div key={cidr} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                    <code style={{ color, fontSize: 10.5, minWidth: 100 }}>{cidr}</code>
+                    <span style={{ fontSize: 10, color: "#888" }}>→</span>
+                    <span style={{ fontSize: 10.5, color: "rgba(255,255,255,0.7)" }}>{label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
 
         <H2>🗺️ What is a Route Table?</H2>
-        <div style={{ background: "#f9f9f9", borderRadius: 9, padding: "12px 14px", marginTop: 4, border: "1px solid #e0e0e0" }}>
-          <div style={{ fontSize: 13, color: "#555", lineHeight: 1.7, marginBottom: 10 }}>
-            A route table is like a <b>GPS for your network traffic</b>. It contains rules (routes) that tell AWS:
-            "when traffic wants to go to THIS destination, send it THAT way."
+        <div style={{ background: "#f9f9f9", borderRadius: 10, padding: "14px", marginTop: 4, border: "1px solid #e0e0e0" }}>
+          <div style={{ fontSize: 13.5, color: "#333", lineHeight: 1.7, marginBottom: 10 }}>
+            A route table = the <b style={{ color: "#1a73e8" }}>GPS navigation for your VPC traffic</b>. It tells AWS:<br />
+            <em>"When traffic wants to go to <b>this destination</b>, send it <b>that way</b>."</em><br />
+            Every subnet must be associated with exactly ONE route table. The route table is what truly makes a subnet public or private.
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 11, color: "#1a73e8", marginBottom: 5 }}>📋 Public Route Table (for public subnets)</div>
-              <div style={{ background: "white", borderRadius: 7, border: "1px solid #e0e0e0", overflow: "hidden" }}>
-                {[["Destination", "Target", "Purpose"],
-                  ["10.0.0.0/16", "local", "Stay within VPC"],
-                  ["0.0.0.0/0", "igw-xxxxx", "Everything else → Internet!"],
-                ].map((row, i) => (
-                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: i < 2 ? "1px solid #f0f0f0" : "none", background: i === 0 ? "#1a73e820" : "white" }}>
-                    {row.map((cell, j) => (
-                      <div key={j} style={{ padding: "5px 7px", fontSize: i === 0 ? 10 : 11, fontWeight: i === 0 ? 700 : 400, color: i === 0 ? "#1a73e8" : j === 1 ? "#0f9d58" : "#555", borderRight: j < 2 ? "1px solid #f0f0f0" : "none" }}>{cell}</div>
-                    ))}
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#2e7d32", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ background: "#4caf50", color: "white", borderRadius: 4, padding: "2px 7px", fontSize: 10 }}>PUBLIC</span> Route Table
+              </div>
+              <div style={{ borderRadius: 8, overflow: "hidden", border: "2px solid #4caf5050" }}>
+                <div style={{ background: "#2e7d32", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "6px 8px" }}>
+                  {["Destination", "Target", "Meaning"].map(h => <div key={h} style={{ fontSize: 10, fontWeight: 700, color: "white" }}>{h}</div>)}
+                </div>
+                {[["10.0.0.0/16", "local", "Stay inside VPC"], ["0.0.0.0/0", "igw-xxx", "→ Internet ✅"]].map((row, i) => (
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "7px 8px", borderTop: "1px solid #e0e0e0", background: i === 1 ? "#f0fff0" : "white" }}>
+                    <code style={{ fontSize: 10.5, color: "#1a73e8" }}>{row[0]}</code>
+                    <code style={{ fontSize: 10.5, color: i === 1 ? "#2e7d32" : "#888", fontWeight: i === 1 ? 700 : 400 }}>{row[1]}</code>
+                    <span style={{ fontSize: 10.5, color: i === 1 ? "#2e7d32" : "#555", fontWeight: i === 1 ? 700 : 400 }}>{row[2]}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 11, color: "#0f9d58", marginTop: 4, fontStyle: "italic" }}>↑ The 0.0.0.0/0 → IGW rule makes this subnet PUBLIC</div>
+              <div style={{ marginTop: 6, fontSize: 11, color: "#2e7d32", fontWeight: 600, padding: "6px 8px", background: "rgba(76,175,80,0.1)", borderRadius: 5 }}>
+                ⭐ <code style={{ background: "#e8f5e9", padding: "0 4px" }}>0.0.0.0/0 → igw</code> = this is what makes a subnet PUBLIC
+              </div>
             </div>
             <div>
-              <div style={{ fontWeight: 700, fontSize: 11, color: "#00897b", marginBottom: 5 }}>📋 Private Route Table (for private subnets)</div>
-              <div style={{ background: "white", borderRadius: 7, border: "1px solid #e0e0e0", overflow: "hidden" }}>
-                {[["Destination", "Target", "Purpose"],
-                  ["10.0.0.0/16", "local", "Stay within VPC only"],
-                  ["(nothing else)", "—", "No internet route!"],
-                ].map((row, i) => (
-                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderBottom: i < 2 ? "1px solid #f0f0f0" : "none", background: i === 0 ? "#00897b20" : "white" }}>
-                    {row.map((cell, j) => (
-                      <div key={j} style={{ padding: "5px 7px", fontSize: i === 0 ? 10 : 11, fontWeight: i === 0 ? 700 : 400, color: i === 0 ? "#00897b" : j === 1 ? "#d32f2f" : "#555", borderRight: j < 2 ? "1px solid #f0f0f0" : "none" }}>{cell}</div>
-                    ))}
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#00697a", marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                <span style={{ background: "#00bcd4", color: "white", borderRadius: 4, padding: "2px 7px", fontSize: 10 }}>PRIVATE</span> Route Table
+              </div>
+              <div style={{ borderRadius: 8, overflow: "hidden", border: "2px solid #00bcd450" }}>
+                <div style={{ background: "#00697a", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "6px 8px" }}>
+                  {["Destination", "Target", "Meaning"].map(h => <div key={h} style={{ fontSize: 10, fontWeight: 700, color: "white" }}>{h}</div>)}
+                </div>
+                {[["10.0.0.0/16", "local", "Stay inside VPC"], ["(no other rules)", "—", "Internet blocked ❌"]].map((row, i) => (
+                  <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", padding: "7px 8px", borderTop: "1px solid #e0e0e0", background: i === 1 ? "#fff5f5" : "white" }}>
+                    <code style={{ fontSize: 10.5, color: "#1a73e8" }}>{row[0]}</code>
+                    <code style={{ fontSize: 10.5, color: i === 1 ? "#d32f2f" : "#888", fontWeight: i === 1 ? 700 : 400 }}>{row[1]}</code>
+                    <span style={{ fontSize: 10.5, color: i === 1 ? "#d32f2f" : "#555", fontWeight: i === 1 ? 700 : 400 }}>{row[2]}</span>
                   </div>
                 ))}
               </div>
-              <div style={{ fontSize: 11, color: "#00897b", marginTop: 4, fontStyle: "italic" }}>↑ No IGW route = private, internet can't reach it</div>
+              <div style={{ marginTop: 6, fontSize: 11, color: "#00697a", fontWeight: 600, padding: "6px 8px", background: "rgba(0,188,212,0.1)", borderRadius: 5 }}>
+                ⭐ No IGW route = nothing from internet can get in = PRIVATE
+              </div>
             </div>
           </div>
         </div>
 
         <Callout icon="🎯" label="Exam Tip"
-          text="Public subnet = has 0.0.0.0/0 → Internet Gateway route in its route table. Private subnet = no such route. CIDR /16 = 65,536 IPs (VPC level). /24 = 256 IPs (subnet level). Each subnet must be associated with exactly ONE route table." color={accent} />
+          text="Public subnet = has 0.0.0.0/0 → Internet Gateway in its route table. Private subnet = no such route. CIDR /16 = 65,536 IPs (VPC). /24 = 256 IPs (subnet). Route table = the GPS routing rules. Each subnet has exactly ONE route table. The 0.0.0.0/0 → igw rule is what truly makes a subnet public." color={accent} />
       </div>
     );
 
@@ -1142,160 +1173,277 @@ function SectionContent({ id }) {
     case "security-nacl": return (
       <div>
         <Body>
-          Inside your VPC, every packet of data travels through <b>two security checkpoints</b>:
-          Network ACLs at the subnet boundary and Security Groups at the instance level.
-          Understanding how they differ — especially <b>stateful vs stateless</b> — is critical for the exam.
+          Inside your VPC, every packet travels through <b>two independent security checkpoints</b>:
+          Network ACLs at the subnet boundary, and Security Groups at the instance level.
+          Think of them as two layers of defence — each with different rules and behaviours.
         </Body>
 
-        {/* Packet journey diagram */}
-        <H2>The Packet Journey — Instance A to Instance B</H2>
-        <div style={{ background: "#f9f9f9", borderRadius: 10, padding: 12, marginTop: 6 }}>
-          <svg width="100%" viewBox="0 0 560 160" style={{ display: "block" }}>
-            {/* Subnet 1 */}
-            <rect x={10} y={20} width={240} height={125} rx="8" fill="#fff8e1" stroke="#FF9900" strokeWidth="1" strokeDasharray="4 2" />
-            <text x={130} y={36} textAnchor="middle" fontSize="9" fontWeight="700" fill="#FF9900">Subnet 1</text>
-            {/* NACL subnet 1 */}
-            <rect x={20} y={44} width={42} height={90} rx="5" fill="#fff3e0" stroke="#FF9900" strokeWidth="1" />
-            <text x={41} y={62} textAnchor="middle" fontSize="7" fontWeight="700" fill="#FF9900">NACL</text>
-            <text x={41} y={73} textAnchor="middle" fontSize="7" fill="#FF9900">Subnet</text>
-            <text x={41} y={83} textAnchor="middle" fontSize="7" fill="#FF9900">boundary</text>
-            <text x={41} y={100} textAnchor="middle" fontSize="9">🛃</text>
-            <text x={41} y={116} textAnchor="middle" fontSize="7" fill="#555">Stateless</text>
-            <text x={41} y={125} textAnchor="middle" fontSize="7" fill="#d32f2f">checks both</text>
-            <text x={41} y={134} textAnchor="middle" fontSize="7" fill="#d32f2f">directions</text>
-            {/* Security group instance A */}
-            <rect x={72} y={44} width={60} height={90} rx="5" fill="#fce4ec" stroke="#d32f2f" strokeWidth="1" />
-            <text x={102} y={62} textAnchor="middle" fontSize="7" fontWeight="700" fill="#d32f2f">Security</text>
-            <text x={102} y={72} textAnchor="middle" fontSize="7" fontWeight="700" fill="#d32f2f">Group</text>
-            <text x={102} y={82} textAnchor="middle" fontSize="7" fill="#d32f2f">Instance A</text>
-            <text x={102} y={96} textAnchor="middle" fontSize="9">🚪</text>
-            <text x={102} y={113} textAnchor="middle" fontSize="7" fill="#555">Stateful</text>
-            <text x={102} y={122} textAnchor="middle" fontSize="7" fill="#0f9d58">auto-allows</text>
-            <text x={102} y={131} textAnchor="middle" fontSize="7" fill="#0f9d58">return traffic</text>
-            {/* Instance A */}
-            <rect x={142} y={65} width={95} height={50} rx="7" fill="#c8e6c9" stroke="#0f9d58" strokeWidth="1" />
-            <text x={189} y={84} textAnchor="middle" fontSize="13">🖥️</text>
-            <text x={189} y={98} textAnchor="middle" fontSize="8" fontWeight="700" fill="#0f9d58">Instance A</text>
-            <text x={189} y={108} textAnchor="middle" fontSize="7" fill="#555">Subnet 1</text>
+        {/* Full VPC Architecture — matching screenshots 1 and 2 */}
+        <H2>🏗️ Full VPC Security Architecture</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 16, marginTop: 8, border: "2px solid #9c27b0" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+            <div style={{ background: "#FF9900", borderRadius: 4, padding: "2px 8px", fontSize: 10, fontWeight: 800, color: "white" }}>aws</div>
+            <span style={{ color: "#ce93d8", fontSize: 11, fontWeight: 700 }}>Amazon Virtual Private Cloud (VPC)</span>
+          </div>
 
-            {/* Arrow between subnets */}
-            <line x1={252} y1={90} x2={308} y2={90} stroke="#1a73e8" strokeWidth="2" />
-            <polygon points="308,86 308,94 314,90" fill="#1a73e8" />
-            <text x={280} y={82} textAnchor="middle" fontSize="8" fontWeight="700" fill="#1a73e8">packet</text>
-            <text x={280} y={103} textAnchor="middle" fontSize="7" fill="#1a73e8">→ travels →</text>
+          <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+            {/* Traffic source */}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 11, color: "#4caf50", fontWeight: 700, marginBottom: 6 }}>Public traffic</div>
+              <div style={{ fontSize: 9, color: "#888", marginBottom: 4 }}>🌐 Internet</div>
+              <div style={{ width: 40, height: 2, background: "#4caf50", margin: "0 auto" }} />
+            </div>
+            <div style={{ color: "#4caf50", fontSize: 16 }}>→</div>
 
-            {/* Subnet 2 */}
-            <rect x={310} y={20} width={240} height={125} rx="8" fill="#e8eaf6" stroke="#3f51b5" strokeWidth="1" strokeDasharray="4 2" />
-            <text x={430} y={36} textAnchor="middle" fontSize="9" fontWeight="700" fill="#3f51b5">Subnet 2</text>
-            {/* NACL subnet 2 */}
-            <rect x={318} y={44} width={42} height={90} rx="5" fill="#e8eaf6" stroke="#3f51b5" strokeWidth="1" />
-            <text x={339} y={62} textAnchor="middle" fontSize="7" fontWeight="700" fill="#3f51b5">NACL</text>
-            <text x={339} y={73} textAnchor="middle" fontSize="7" fill="#3f51b5">Subnet</text>
-            <text x={339} y={83} textAnchor="middle" fontSize="7" fill="#3f51b5">boundary</text>
-            <text x={339} y={100} textAnchor="middle" fontSize="9">🛃</text>
-            <text x={339} y={116} textAnchor="middle" fontSize="7" fill="#555">Stateless</text>
-            <text x={339} y={125} textAnchor="middle" fontSize="7" fill="#d32f2f">checks both</text>
-            <text x={339} y={134} textAnchor="middle" fontSize="7" fill="#d32f2f">directions</text>
-            {/* Security group instance B */}
-            <rect x={368} y={44} width={60} height={90} rx="5" fill="#fce4ec" stroke="#d32f2f" strokeWidth="1" />
-            <text x={398} y={62} textAnchor="middle" fontSize="7" fontWeight="700" fill="#d32f2f">Security</text>
-            <text x={398} y={72} textAnchor="middle" fontSize="7" fontWeight="700" fill="#d32f2f">Group</text>
-            <text x={398} y={82} textAnchor="middle" fontSize="7" fill="#d32f2f">Instance B</text>
-            <text x={398} y={96} textAnchor="middle" fontSize="9">🚪</text>
-            <text x={398} y={113} textAnchor="middle" fontSize="7" fill="#555">Stateful</text>
-            <text x={398} y={122} textAnchor="middle" fontSize="7" fill="#0f9d58">auto-allows</text>
-            <text x={398} y={131} textAnchor="middle" fontSize="7" fill="#0f9d58">return traffic</text>
-            {/* Instance B */}
-            <rect x={436} y={65} width={100} height={50} rx="7" fill="#bbdefb" stroke="#1a73e8" strokeWidth="1" />
-            <text x={486} y={84} textAnchor="middle" fontSize="13">🖥️</text>
-            <text x={486} y={98} textAnchor="middle" fontSize="8" fontWeight="700" fill="#1a73e8">Instance B</text>
-            <text x={486} y={108} textAnchor="middle" fontSize="7" fill="#555">Subnet 2</text>
+            {/* Internet Gateway */}
+            <div style={{ border: "2px solid #9c27b0", borderRadius: 10, padding: "10px 8px", background: "rgba(156,39,176,0.2)", textAlign: "center" }}>
+              <div style={{ fontSize: 20, marginBottom: 2 }}>🚪</div>
+              <div style={{ fontSize: 8, color: "#ce93d8", fontWeight: 700, lineHeight: 1.3 }}>Internet<br />gateway</div>
+            </div>
+            <div style={{ color: "#4caf50", fontSize: 16 }}>→</div>
 
-            {/* Journey labels at bottom */}
-            <text x={280} y={155} textAnchor="middle" fontSize="8" fill="#555">
-              Packet path: Instance A SG → Subnet 1 NACL → Subnet 2 NACL → Instance B SG → Instance B
-            </text>
-          </svg>
+            {/* ELB Security Group */}
+            <div style={{ border: "2px solid #e91e63", borderRadius: 8, padding: 8, background: "rgba(233,30,99,0.1)" }}>
+              <div style={{ fontSize: 8, color: "#f48fb1", fontWeight: 700, marginBottom: 6, textAlign: "center" }}>Security group</div>
+              <div style={{ border: "1px solid #e91e63", borderRadius: 6, padding: "8px 12px", background: "rgba(233,30,99,0.15)", textAlign: "center" }}>
+                <div style={{ fontSize: 16, marginBottom: 2 }}>⚖️</div>
+                <div style={{ fontSize: 8, color: "#f48fb1", fontWeight: 700 }}>Elastic Load<br />Balancer</div>
+              </div>
+            </div>
+            <div style={{ color: "#4caf50", fontSize: 16 }}>→</div>
+
+            {/* Auto Scaling + Security Group */}
+            <div style={{ border: "2px dashed #FF9900", borderRadius: 8, padding: 8 }}>
+              <div style={{ fontSize: 8, color: "#FF9900", fontWeight: 700, marginBottom: 4, textAlign: "center" }}>⚙️ Auto Scaling group</div>
+              <div style={{ border: "2px solid #e91e63", borderRadius: 7, padding: 8, background: "rgba(233,30,99,0.1)" }}>
+                <div style={{ fontSize: 8, color: "#f48fb1", fontWeight: 700, marginBottom: 6, textAlign: "center" }}>Security group</div>
+                <div style={{ display: "flex", gap: 6 }}>
+                  {["🖥️", "🖥️", "🖥️"].map((icon, i) => (
+                    <div key={i} style={{ border: "1px solid #FF9900", borderRadius: 5, padding: "6px 8px", background: "rgba(255,152,0,0.15)", textAlign: "center" }}>
+                      <div style={{ fontSize: 14 }}>{icon}</div>
+                      <div style={{ fontSize: 7, color: "#FF9900" }}>EC2</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div style={{ color: "#4caf50", fontSize: 16 }}>→</div>
+
+            {/* Database Security Group */}
+            <div style={{ border: "2px solid #e91e63", borderRadius: 8, padding: 8, background: "rgba(233,30,99,0.1)" }}>
+              <div style={{ fontSize: 8, color: "#f48fb1", fontWeight: 700, marginBottom: 6, textAlign: "center" }}>Security group</div>
+              <div style={{ border: "1px solid #e91e63", borderRadius: 6, padding: "8px 12px", background: "rgba(233,30,99,0.15)", textAlign: "center" }}>
+                <div style={{ fontSize: 16, marginBottom: 2 }}>🗄️</div>
+                <div style={{ fontSize: 8, color: "#f48fb1", fontWeight: 700 }}>Database</div>
+              </div>
+            </div>
+          </div>
+          <div style={{ marginTop: 10, fontSize: 9.5, color: "rgba(255,255,255,0.5)", textAlign: "center" }}>
+            Public traffic → Internet Gateway → ELB (Security Group) → EC2 instances (Security Group) → Database (Security Group)
+          </div>
         </div>
 
-        <H2>The Full Packet Round-Trip — Step by Step</H2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6 }}>
-          {[
-            { dir: "→", step: "1. Instance A SG — Outbound", detail: "Security Group checks outbound rules. By default all outbound is ALLOWED. Packet leaves Instance A.", color: "#d32f2f", ok: true },
-            { dir: "→", step: "2. Subnet 1 NACL — Outbound", detail: "NACL checks outbound rules. Stateless — must have explicit allow rule. If allowed, packet exits Subnet 1.", color: "#FF9900", ok: true },
-            { dir: "→", step: "3. Subnet 2 NACL — Inbound", detail: "NACL checks inbound rules. Stateless — checks again. Separate rule from outbound. Must be explicitly allowed.", color: "#FF9900", ok: true },
-            { dir: "→", step: "4. Instance B SG — Inbound", detail: "Security Group checks inbound rules. If sender is approved, packet is accepted. Instance B processes the request.", color: "#d32f2f", ok: true },
-            { dir: "←", step: "5. Return: Instance B SG — Outbound", detail: "Stateful — SG remembers the original inbound request. Return traffic AUTOMATICALLY allowed. No rule check needed.", color: "#0f9d58", ok: true },
-            { dir: "←", step: "6. Return: Subnet 2 NACL — Outbound", detail: "Stateless — NACL does NOT remember. Must check outbound rules again. Explicit allow rule required for return traffic.", color: "#FF9900", ok: true },
-            { dir: "←", step: "7. Return: Subnet 1 NACL — Inbound", detail: "Stateless — checks inbound rules again. Must have explicit allow rule for return traffic ports.", color: "#FF9900", ok: true },
-            { dir: "←", step: "8. Return: Instance A SG — Inbound", detail: "Stateful — SG remembers sending the request. Return traffic AUTOMATICALLY allowed back in. Packet delivered.", color: "#0f9d58", ok: true },
-          ].map(({ dir, step, detail, color }) => (
-            <div key={step} style={{
-              display: "flex", gap: 10, alignItems: "flex-start",
-              border: `1px solid ${color}25`, borderLeft: `3px solid ${color}`,
-              borderRadius: 7, padding: "7px 11px", background: color + "05",
-            }}>
-              <div style={{
-                width: 22, height: 22, borderRadius: "50%", background: color,
-                color: "white", fontWeight: 700, fontSize: 11, flexShrink: 0,
-                display: "flex", alignItems: "center", justifyContent: "center",
-              }}>{dir}</div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 2 }}>{step}</div>
-                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{detail}</div>
+        {/* NACL Diagram — screenshot 9 & 10 style */}
+        <H2>🛃 Network ACLs (NACLs) — Subnet-Level Firewall</H2>
+        <div style={{ background: "white", borderRadius: 10, padding: 14, border: "1px solid #e0e0e0", marginTop: 6 }}>
+          {/* Airport analogy diagram */}
+          <div style={{ background: "#e8f4f8", borderRadius: 8, padding: "12px 14px", marginBottom: 12, border: "2px solid #1a73e8" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#1a73e8", marginBottom: 8, textAlign: "center" }}>
+              ✈️ NACL = Airport Passport Control (Subnet Traffic Control)
+            </div>
+            <div style={{ display: "flex", alignItems: "stretch", gap: 0 }}>
+              {/* Arrival side */}
+              <div style={{ flex: 1, textAlign: "center", padding: "8px 10px", background: "#1a73e815", borderRadius: "8px 0 0 8px", border: "1px solid #1a73e830" }}>
+                <div style={{ fontSize: 20, marginBottom: 4 }}>🧑</div>
+                <div style={{ fontSize: 11, color: "#1a73e8", fontWeight: 700, marginBottom: 4 }}>"Hey, I want to enter."</div>
+                <div style={{ fontSize: 10, color: "#555" }}>Packet arrives at subnet</div>
               </div>
+              {/* Passport officer IN */}
+              <div style={{ background: "#1a73e8", padding: "8px 12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
+                <div style={{ fontSize: 16 }}>👮</div>
+                <div style={{ fontSize: 9, color: "white", fontWeight: 700 }}>IN</div>
+                <div style={{ fontSize: 8, color: "rgba(255,255,255,0.8)", textAlign: "center" }}>NACL checks<br />inbound list</div>
+              </div>
+              {/* Subnet */}
+              <div style={{ flex: 1, textAlign: "center", padding: "8px 10px", background: "#FF990015", border: "2px dashed #FF9900" }}>
+                <div style={{ fontSize: 10, color: "#FF9900", fontWeight: 700, marginBottom: 4 }}>Subnet</div>
+                <div style={{ fontSize: 18 }}>🖥️ 🗄️</div>
+                <div style={{ fontSize: 9, color: "#888" }}>Resources inside</div>
+              </div>
+              {/* Passport officer OUT */}
+              <div style={{ background: "#1a73e8", padding: "8px 12px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 3 }}>
+                <div style={{ fontSize: 16 }}>👮</div>
+                <div style={{ fontSize: 9, color: "white", fontWeight: 700 }}>OUT</div>
+                <div style={{ fontSize: 8, color: "rgba(255,255,255,0.8)", textAlign: "center" }}>NACL checks<br />outbound list</div>
+              </div>
+              {/* Exit side */}
+              <div style={{ flex: 1, textAlign: "center", padding: "8px 10px", background: "#1a73e815", borderRadius: "0 8px 8px 0", border: "1px solid #1a73e830" }}>
+                <div style={{ fontSize: 20, marginBottom: 4 }}>🧑‍💼</div>
+                <div style={{ fontSize: 11, color: "#1a73e8", fontWeight: 700, marginBottom: 4 }}>"Hey, I want to exit."</div>
+                <div style={{ fontSize: 10, color: "#555" }}>NACL checks again!</div>
+              </div>
+            </div>
+            <div style={{ marginTop: 8, textAlign: "center", fontSize: 11, color: "#555" }}>
+              <b>Default NACL:</b> "By default, all are welcome! By default, all can exit!" — allows everything in AND out.
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "10px 12px", border: "1px solid #4caf5040" }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#2e7d32", marginBottom: 6 }}>✅ Default NACL</div>
+              <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                Allows ALL inbound traffic in.<br />
+                Allows ALL outbound traffic out.<br />
+                AWS accounts start with this — safe to add rules later.
+              </div>
+            </div>
+            <div style={{ background: "#fce4ec", borderRadius: 7, padding: "10px 12px", border: "1px solid #e91e6340" }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#c62828", marginBottom: 6 }}>⚙️ Custom NACL</div>
+              <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                Denies ALL inbound and outbound by default.<br />
+                You add explicit ALLOW rules (and DENY rules too).<br />
+                Rules evaluated in number order — first match wins.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Security Groups — screenshot 6, 7 style */}
+        <H2>🚪 Security Groups — Instance-Level Firewall</H2>
+        <div style={{ background: "white", borderRadius: 10, padding: 14, border: "1px solid #e0e0e0", marginTop: 6 }}>
+          {/* Building analogy */}
+          <div style={{ background: "#fce4ec", borderRadius: 8, padding: "12px 14px", marginBottom: 12, border: "2px solid #e91e63" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#c62828", marginBottom: 8, textAlign: "center" }}>
+              🏢 Security Group = Building Doorman (Instance Level)
+            </div>
+            <div style={{ display: "flex", gap: 10, alignItems: "stretch" }}>
+              {/* Arrival */}
+              <div style={{ flex: 1 }}>
+                <div style={{ background: "#ffebee", borderRadius: 7, padding: "8px 10px", height: "100%", border: "1px solid #ef9a9a" }}>
+                  <div style={{ textAlign: "center", marginBottom: 6 }}>
+                    <div style={{ fontSize: 20 }}>🧑</div>
+                    <div style={{ fontSize: 10, color: "#c62828", fontWeight: 700 }}>"Hey, I want to get in."</div>
+                  </div>
+                  <div style={{ fontSize: 10, color: "#888", textAlign: "center" }}>↓</div>
+                  <div style={{ fontSize: 10, color: "#555", textAlign: "center", fontStyle: "italic" }}>Doorman checks list:<br />"Are you approved?"</div>
+                </div>
+              </div>
+              {/* Doorman */}
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "#e91e63", padding: "8px 12px", borderRadius: 8, gap: 4 }}>
+                <div style={{ fontSize: 20 }}>🕵️</div>
+                <div style={{ fontSize: 9, color: "white", fontWeight: 700, textAlign: "center" }}>Security<br />Group</div>
+                <div style={{ fontSize: 8, color: "rgba(255,255,255,0.8)", textAlign: "center" }}>Checks IN.<br />NOT out.</div>
+              </div>
+              {/* Building/EC2 */}
+              <div style={{ flex: 1, border: "2px solid #e91e63", borderRadius: 7, padding: "8px 10px", background: "#fce4ec15", textAlign: "center" }}>
+                <div style={{ fontSize: 20, marginBottom: 4 }}>🖥️</div>
+                <div style={{ fontSize: 10, color: "#c62828", fontWeight: 700, marginBottom: 4 }}>EC2 Instance</div>
+                <div style={{ fontSize: 10, color: "#555" }}>The resources in the subnet</div>
+              </div>
+              {/* Exit */}
+              <div style={{ flex: 1 }}>
+                <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px", height: "100%", border: "1px solid #a5d6a7" }}>
+                  <div style={{ textAlign: "center", marginBottom: 6 }}>
+                    <div style={{ fontSize: 20 }}>🧑‍💼</div>
+                    <div style={{ fontSize: 10, color: "#2e7d32", fontWeight: 700 }}>"Hey, I'm leaving."</div>
+                  </div>
+                  <div style={{ fontSize: 10, color: "#888", textAlign: "center" }}>↓</div>
+                  <div style={{ fontSize: 10, color: "#2e7d32", textAlign: "center", fontStyle: "italic", fontWeight: 600 }}>"Go right ahead.<br />No need to check!" ✅</div>
+                </div>
+              </div>
+            </div>
+            <div style={{ marginTop: 8, textAlign: "center", fontSize: 11, color: "#555" }}>
+              <b>Default Security Group:</b> Blocks ALL inbound · Allows ALL outbound.<br />
+              With custom rules: Checks list on the way IN, but never re-checks on the way OUT (stateful!).
+            </div>
+          </div>
+        </div>
+
+        {/* Packet journey — screenshot 9 style */}
+        <H2>📦 How a Packet Gets Checked (NACL + Security Group Journey)</H2>
+        <div style={{ background: "white", borderRadius: 10, padding: 14, border: "1px solid #e0e0e0", marginTop: 6 }}>
+          {/* Client → IGW → NACL → Security Group → EC2 */}
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap", justifyContent: "center", marginBottom: 12 }}>
+            {[
+              { icon: "💻", label: "Client", color: "#555" },
+              { icon: "→", label: "", color: "#888", isArrow: true },
+              { icon: "🌐", label: "Internet", color: "#555" },
+              { icon: "→", label: "", color: "#888", isArrow: true },
+              { icon: "🚪", label: "Internet Gateway", color: "#9c27b0" },
+              { icon: "→", label: "", color: "#888", isArrow: true },
+              { icon: "📨", label: "Packet ", color: "#1a73e8" },
+              { icon: "→", label: "", color: "#888", isArrow: true },
+              { icon: "👮", label: "Network ACL Permission?", color: "#FF9900" },
+              { icon: "→", label: "", color: "#888", isArrow: true },
+              { icon: "🕵️", label: "Security Group", color: "#e91e63" },
+              { icon: "→", label: "", color: "#888", isArrow: true },
+              { icon: "🖥️🗄️", label: "EC2 / DB", color: "#0f9d58" },
+            ].map(({ icon, label, color, isArrow }, i) => (
+              isArrow
+                ? <div key={i} style={{ fontSize: 18, color: "#888", margin: "0 2px" }}>→</div>
+                : <div key={i} style={{ textAlign: "center", padding: "6px 8px", background: color + "15", border: `1px solid ${color}40`, borderRadius: 7, minWidth: 60 }}>
+                    <div style={{ fontSize: 14 }}>{icon}</div>
+                    <div style={{ fontSize: 8, color, fontWeight: 700, lineHeight: 1.3, marginTop: 2 }}>
+                      {label.split("").map((l, j) => <div key={j}>{l}</div>)}
+                    </div>
+                  </div>
+            ))}
+          </div>
+          <div style={{ background: "#fff8e1", borderRadius: 7, padding: "8px 12px", border: "1px solid #FF990040", fontSize: 12, color: "#555", lineHeight: 1.65 }}>
+            <b style={{ color: "#CC7A00" }}>⚠️ Key point:</b> NACL doesn't care what Security Group allows — it has its own list.
+            Security Group doesn't care what NACL allowed — it has its own rules.
+            <b> They are completely independent checkpoints.</b>
+          </div>
+        </div>
+
+        {/* Comparison table */}
+        <H2>⚖️ Security Group vs NACL — Side by Side</H2>
+        <div style={{ borderRadius: 10, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 6 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", background: "#263238" }}>
+            {["Feature", "Security Group 🚪", "Network ACL 👮"].map((h, j) => (
+              <div key={h} style={{ padding: "10px 12px", fontSize: 11, fontWeight: 700, color: ["#FF9900","#ef9a9a","#90caf9"][j] || "#FF9900", borderRight: j < 2 ? "1px solid rgba(255,255,255,0.1)" : "none" }}>{h}</div>
+            ))}
+          </div>
+          {[
+            ["Level / Scope", "EC2 instance level", "Subnet boundary level"],
+            ["Analogy", "Doorman at building", "Passport control at border"],
+            ["State", "✅ Stateful — remembers", "❌ Stateless — no memory"],
+            ["Return traffic", "Auto-allowed (no rule needed)", "Must explicitly allow return"],
+            ["Default", "Block ALL inbound · Allow ALL outbound", "Allow ALL in and out (default)"],
+            ["Rule types", "Allow rules ONLY", "Allow AND Deny rules"],
+            ["Rule evaluation", "All rules evaluated together", "Number order — first match wins"],
+            ["Best for", "Fine control per instance", "Broad subnet-level protection"],
+          ].map((row, i) => (
+            <div key={i} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", borderTop: "1px solid #f0f0f0", background: i % 2 === 0 ? "#fafafa" : "white" }}>
+              {row.map((cell, j) => (
+                <div key={j} style={{
+                  padding: "9px 12px", fontSize: 12,
+                  fontWeight: j === 0 ? 700 : 400,
+                  color: j === 0 ? "#333" : j === 1 ? "#c62828" : "#1565c0",
+                  borderRight: j < 2 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.45,
+                }}>{cell}</div>
+              ))}
             </div>
           ))}
         </div>
 
-        <H2>Security Group vs NACL — The Core Difference</H2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 6 }}>
-          <div style={{ border: "1px solid #d32f2f30", borderTop: "3px solid #d32f2f", borderRadius: 8, padding: "12px" }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: "#d32f2f", marginBottom: 8 }}>🚪 Security Group</div>
-            <Analogy icon="🏢" label="Doorman analogy"
-              text="Like a doorman at a building. Checks who comes in. Doesn't check who leaves — everyone can go out. REMEMBERS who entered, so lets them back in without checking again."
-              color="#d32f2f" />
-            <div style={{ marginTop: 8 }}>
-              {[
-                ["Level", "EC2 instance"],
-                ["State", "✅ Stateful — remembers connections"],
-                ["Rules", "Allow only (no explicit deny)"],
-                ["Inbound default", "❌ Deny ALL"],
-                ["Outbound default", "✅ Allow ALL"],
-                ["Return traffic", "Auto-allowed (no rule needed)"],
-              ].map(([k, v]) => (
-                <div key={k} style={{ display: "flex", gap: 8, padding: "3px 0", borderBottom: "1px solid #f5f5f5", fontSize: 12 }}>
-                  <span style={{ fontWeight: 700, color: "#d32f2f", minWidth: 110 }}>{k}:</span>
-                  <span style={{ color: "#555" }}>{v}</span>
-                </div>
-              ))}
-            </div>
+        {/* Shared Responsibility callout */}
+        <div style={{ background: "#E3F2FD", border: "1px solid #1a73e840", borderRadius: 9, padding: "11px 14px", marginTop: 10 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: "#1565c0", marginBottom: 5 }}>🤝 Shared Responsibility — YOUR job</div>
+          <div style={{ fontSize: 12.5, color: "#555", lineHeight: 1.65 }}>
+            Security Groups and Network ACLs are <b>customer responsibility</b> in the AWS Shared Responsibility Model.
+            AWS manages the physical hardware. <b>You</b> are responsible for:
           </div>
-          <div style={{ border: "1px solid #FF990030", borderTop: "3px solid #FF9900", borderRadius: 8, padding: "12px" }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: accentDark, marginBottom: 8 }}>🛃 Network ACL (NACL)</div>
-            <Analogy icon="✈️" label="Passport control analogy"
-              text="Like passport control at a border. Checks EVERYONE entering AND leaving. Has a strict list of who can pass. DOES NOT remember previous visits — checks you every single time."
-              color="#FF9900" />
-            <div style={{ marginTop: 8 }}>
-              {[
-                ["Level", "Subnet boundary"],
-                ["State", "❌ Stateless — no memory"],
-                ["Rules", "Allow AND Deny rules"],
-                ["Inbound default", "✅ Allow ALL (default NACL)"],
-                ["Outbound default", "✅ Allow ALL (default NACL)"],
-                ["Return traffic", "Must explicitly allow — NOT automatic"],
-              ].map(([k, v]) => (
-                <div key={k} style={{ display: "flex", gap: 8, padding: "3px 0", borderBottom: "1px solid #f5f5f5", fontSize: 12 }}>
-                  <span style={{ fontWeight: 700, color: accentDark, minWidth: 110 }}>{k}:</span>
-                  <span style={{ color: "#555" }}>{v}</span>
-                </div>
-              ))}
-            </div>
+          <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginTop: 8 }}>
+            {["Security Group rules", "NACL rules", "Network traffic protection", "OS/firewall config", "App security", "Data encryption"].map(t => (
+              <span key={t} style={{ fontSize: 11, background: "#1a73e815", color: "#1565c0", border: "1px solid #1a73e830", borderRadius: 12, padding: "3px 9px", fontWeight: 600 }}>{t}</span>
+            ))}
           </div>
         </div>
 
-        <Callout icon="🎯" label="Exam Tip — The Most Tested Concept"
-          text="Stateful (Security Group) = remembers connections, return traffic auto-allowed. Stateless (NACL) = checks EVERY packet in both directions, must explicitly allow return traffic. Both evaluate INDEPENDENTLY — NACL doesn't care what Security Group allowed. This is the #1 networking question on the exam." color="#d32f2f" />
+        <Callout icon="🎯" label="Exam Tip — Most Tested Networking Concept"
+          text="Security Group = STATEFUL (remembers), instance-level, allow-only, return traffic auto-allowed. NACL = STATELESS (no memory), subnet-level, allow AND deny, must explicitly allow return traffic in BOTH directions. Both are independent — NACL doesn't know what Security Group allowed and vice versa." color="#d32f2f" />
       </div>
     );
 
