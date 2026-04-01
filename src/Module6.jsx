@@ -63,7 +63,11 @@ const sections = [
   { id: "s3", emoji: "🪣", title: "Amazon S3", badge: "Object Storage", badgeColor: "#FF9900" },
   { id: "s3-classes", emoji: "📊", title: "S3 Storage Classes", badge: "9 Classes + Lifecycle", badgeColor: "#1a73e8" },
   { id: "s3-security", emoji: "🔐", title: "S3 Security", badge: "Policies · Encryption · Access", badgeColor: "#d32f2f" },
-  { id: "other-storage", emoji: "🌐", title: "EFS, FSx & More", badge: "File Storage + Hybrid", badgeColor: "#546e7a" },
+  { id: "efs", emoji: "📁", title: "Amazon EFS", badge: "Shared File Storage", badgeColor: "#0f9d58" },
+  { id: "fsx", emoji: "🪟", title: "Amazon FSx", badge: "4 File Systems", badgeColor: "#0078d4" },
+  { id: "gateway", emoji: "🌉", title: "Storage Gateway", badge: "Hybrid Cloud Bridge", badgeColor: "#546e7a" },
+  { id: "disaster", emoji: "🛡️", title: "Elastic Disaster Recovery", badge: "DR & Business Continuity", badgeColor: "#d32f2f" },
+  { id: "compare", emoji: "⚖️", title: "When to Use Which?", badge: "Real-World Decision Guide", badgeColor: "#FF9900" },
 ];
 
 function SectionContent({ id }) {
@@ -832,108 +836,189 @@ function SectionContent({ id }) {
     );
 
     // ── OTHER STORAGE ─────────────────────────────────────────────────────────
-    case "other-storage": return (
+    case "efs": return (
       <div>
         <Body>
-          Beyond EBS and S3, AWS offers file storage services for shared access, and hybrid services
-          that bridge on-premises and cloud storage.
+          Amazon EFS (Elastic File System) is a <b>fully managed, shared file system</b> that multiple
+          EC2 instances can access simultaneously — across multiple Availability Zones in a Region.
+          Think of it as a network drive that your entire team can connect to at the same time.
         </Body>
 
-        <H2>📁 Amazon EFS — Elastic File System</H2>
-        <div style={{ border: "1px solid #0f9d5830", borderRadius: 10, overflow: "hidden", marginTop: 6 }}>
-          <div style={{ background: "#0f9d58", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
-            <span style={{ fontSize: 22 }}>📁</span>
-            <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>Amazon EFS — Elastic File System</div>
-          </div>
-          <div style={{ padding: "12px 14px", background: "white" }}>
-            <div style={{ fontSize: 13, color: "#555", lineHeight: 1.65, marginBottom: 10 }}>
-              A <b>fully managed NFS (Network File System)</b> that can be mounted by multiple EC2 instances simultaneously.
-              Unlike EBS (one volume, one instance), EFS can be shared across dozens of instances, even across AZs.
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-              <KV rows={[
-                ["Type", "Network file system (NFS)", "#0f9d58"],
-                ["Access", "Multiple EC2 instances simultaneously", "#0f9d58"],
-                ["Scaling", "Grows/shrinks automatically as you add/remove files", "#1a73e8"],
-                ["Compatibility", "Linux/Unix. NFS protocol. No Windows.", "#FF9900"],
-                ["Use cases", "Content management, shared app data, home directories", "#6a1b9a"],
-              ]} />
-              <div style={{ background: "#e8f5e9", borderRadius: 8, padding: "10px 12px" }}>
-                <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 6 }}>💡 EBS vs EFS</div>
-                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.65 }}>
-                  <b>EBS:</b> One volume → One EC2 instance. Like a USB drive attached to your laptop.<br /><br />
-                  <b>EFS:</b> One file system → Many EC2 instances. Like a shared network drive that everyone in the office connects to.
+        {/* EFS vs EBS Architecture Diagram */}
+        <H2>📐 EFS vs EBS — The Critical Difference</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 16, marginTop: 8, border: "2px solid #0f9d58" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
+            {/* EBS - one to one */}
+            <div style={{ background: "#d32f2f15", border: "2px solid #d32f2f", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#ef9a9a", marginBottom: 8, textAlign: "center" }}>💾 EBS — One Volume, ONE Instance</div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div style={{ display: "flex", gap: 10 }}>
+                  {["🖥️ EC2-A", "🖥️ EC2-B", "🖥️ EC2-C"].map((ec2, i) => (
+                    <div key={i} style={{ background: "#FF990020", border: "1px solid #FF9900", borderRadius: 6, padding: "6px 8px", textAlign: "center", opacity: i === 0 ? 1 : 0.4 }}>
+                      <div style={{ fontSize: 11 }}>{ec2.split(" ")[0]}</div>
+                      <div style={{ fontSize: 8, color: "#FF9900" }}>{ec2.split(" ")[1]}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ fontSize: 14, color: "#d32f2f" }}>↕</div>
+                <div style={{ background: "#d32f2f25", border: "2px solid #d32f2f", borderRadius: 7, padding: "8px 16px", textAlign: "center" }}>
+                  <div style={{ fontSize: 14 }}>💾</div>
+                  <div style={{ fontSize: 9, color: "#ef9a9a", fontWeight: 700 }}>EBS Volume</div>
+                  <div style={{ fontSize: 8, color: "#888" }}>Attached to EC2-A only</div>
                 </div>
               </div>
+              <div style={{ fontSize: 10.5, color: "#ef9a9a", textAlign: "center", marginTop: 8 }}>EC2-B and EC2-C cannot access this EBS</div>
             </div>
+
+            {/* EFS - many to one */}
+            <div style={{ background: "#0f9d5815", border: "2px solid #4caf50", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#4caf50", marginBottom: 8, textAlign: "center" }}>📁 EFS — One File System, MANY Instances</div>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div style={{ display: "flex", gap: 10 }}>
+                  {["🖥️ EC2-A", "🖥️ EC2-B", "🖥️ EC2-C"].map((ec2, i) => (
+                    <div key={i} style={{ background: "#FF990020", border: "1px solid #FF9900", borderRadius: 6, padding: "6px 8px", textAlign: "center" }}>
+                      <div style={{ fontSize: 11 }}>{ec2.split(" ")[0]}</div>
+                      <div style={{ fontSize: 8, color: "#FF9900" }}>{ec2.split(" ")[1]}</div>
+                    </div>
+                  ))}
+                </div>
+                <div style={{ display: "flex", gap: 20, fontSize: 14, color: "#4caf50" }}>↓ ↓ ↓</div>
+                <div style={{ background: "#4caf5025", border: "2px solid #4caf50", borderRadius: 7, padding: "8px 20px", textAlign: "center" }}>
+                  <div style={{ fontSize: 14 }}>📁</div>
+                  <div style={{ fontSize: 9, color: "#4caf50", fontWeight: 700 }}>EFS File System</div>
+                  <div style={{ fontSize: 8, color: "#888" }}>All 3 EC2s read/write simultaneously</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 10.5, color: "#4caf50", textAlign: "center", marginTop: 8 }}>All EC2 instances share the same data ✅</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 10, background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: "rgba(255,255,255,0.75)", lineHeight: 1.65, textAlign: "center" }}>
+            <b style={{ color: "#4caf50" }}>Simple rule:</b> EBS = USB drive per laptop. EFS = shared Google Drive for the whole team.
           </div>
         </div>
 
-        <H2>🪟 Amazon FSx — Managed File Storage for Popular File Systems</H2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 6 }}>
+        <H2>Amazon EFS — Key Facts</H2>
+        <KV rows={[
+          ["What it is", "Managed NFS (Network File System). Multiple EC2 instances can mount and read/write simultaneously.", "#0f9d58"],
+          ["Multi-AZ", "Automatically replicates across multiple AZs. Survives AZ failures — high availability built in.", "#1a73e8"],
+          ["Auto-scaling", "Grows and shrinks automatically. No capacity planning. Scales to petabytes.", "#FF9900"],
+          ["Compatibility", "Linux/Unix ONLY. Uses NFS protocol. Does NOT support Windows workloads.", "#d32f2f"],
+          ["Concurrent access", "Thousands of NFS connections simultaneously. All see the same data in real time.", "#6a1b9a"],
+          ["Storage classes", "Standard, Standard-IA, One Zone, One Zone-IA, Archive. Auto-lifecycle policies.", "#546e7a"],
+        ]} />
+
+        <H2>🎯 Real-World Example — Automotive Repair Chain</H2>
+        <div style={{ background: "#e8f5e9", borderRadius: 10, padding: "14px", marginTop: 6, border: "1px solid #4caf5040" }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: "#2e7d32", marginBottom: 8 }}>🔧 Problem: 50 mechanic shops need to share repair manuals, diagnostic videos, and technical diagrams in real time</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#d32f2f", marginBottom: 5 }}>❌ Without EFS:</div>
+              {["Each shop has its own file server", "Updates don't sync automatically", "Video uploaded in Texas not visible in California", "Mechanics working on old versions of manuals"].map(p => <div key={p} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>• {p}</div>)}
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 5 }}>✅ With EFS:</div>
+              {["One shared EFS file system", "Any EC2 in any AZ mounts it simultaneously", "Upload new repair video → instantly visible to all 50 shops", "Auto-scales as media library grows"].map(p => <div key={p} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>• {p}</div>)}
+            </div>
+          </div>
+          <div style={{ marginTop: 10, background: "#2e7d3215", borderRadius: 7, padding: "8px 12px", fontSize: 12, color: "#2e7d32", fontWeight: 600 }}>
+            Result: All 50 locations always have access to the same, up-to-date repair knowledge base. Real-time. Zero manual sync.
+          </div>
+        </div>
+
+        <H2>EFS Storage Classes & Lifecycle</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 6 }}>
           {[
-            { name: "FSx for Windows File Server", icon: "🪟", color: "#0078d4", desc: "Fully managed Windows file system. SMB protocol. Active Directory integration. Perfect for Windows workloads migrating to AWS.", use: "Windows apps, SQL Server, home directories" },
-            { name: "FSx for Lustre", icon: "⚡", color: "#FF9900", desc: "High-performance file system for compute-intensive workloads. Sub-millisecond latency. Integrates with S3.", use: "Machine learning, HPC, video processing, financial simulations" },
-          ].map(({ name, icon, color, desc, use }) => (
-            <div key={name} style={{ border: `1px solid ${color}30`, borderTop: `3px solid ${color}`, borderRadius: 9, padding: "12px" }}>
-              <div style={{ fontSize: 22, marginBottom: 4 }}>{icon}</div>
-              <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 5 }}>{name}</div>
-              <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55, marginBottom: 6 }}>{desc}</div>
-              <div style={{ fontSize: 11, color, fontStyle: "italic" }}>🎯 {use}</div>
+            { cls: "EFS Standard", icon: "⭐", cost: "Highest", access: "Frequent", redundancy: "Multi-AZ", color: "#0f9d58", use: "Active shared data, CMS, dev environments" },
+            { cls: "EFS Standard-IA", icon: "📦", cost: "Lower", access: "Infrequent (quarterly)", redundancy: "Multi-AZ", color: "#FF9900", use: "Older project files, infrequent audit data" },
+            { cls: "EFS Archive", icon: "🏔️", cost: "Lowest (50% cheaper than IA)", access: "Rarely (few times/year)", redundancy: "Multi-AZ", color: "#6a1b9a", use: "Cold data, compliance archives, historical logs" },
+          ].map(({ cls, icon, cost, access, redundancy, color, use }) => (
+            <div key={cls} style={{ border: `1px solid ${color}30`, borderTop: `3px solid ${color}`, borderRadius: 8, padding: "10px 11px" }}>
+              <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
+              <div style={{ fontWeight: 700, fontSize: 11.5, color, marginBottom: 6 }}>{cls}</div>
+              {[["Access", access], ["Redundancy", redundancy], ["Cost", cost], ["Best for", use]].map(([k, v]) => (
+                <div key={k} style={{ fontSize: 11, color: "#555", marginBottom: 2 }}><b style={{ color }}>{k}:</b> {v}</div>
+              ))}
             </div>
           ))}
         </div>
 
-        <H2>🔗 AWS Storage Gateway — Hybrid Cloud Bridge</H2>
-        <div style={{ border: "1px solid #546e7a30", borderRadius: 10, overflow: "hidden", marginTop: 6 }}>
-          <div style={{ background: "#546e7a", padding: "10px 14px" }}>
-            <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>🏢 AWS Storage Gateway</div>
-            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.8)" }}>Gives on-premises apps access to virtually unlimited cloud storage</div>
+        <Callout icon="🎯" label="Exam Tip"
+          text="EFS = shared NFS, multiple EC2s simultaneously, Linux ONLY, multi-AZ by default, auto-scales. EBS = single EC2, any OS, manually sized. Use EFS when multiple servers need the SAME data at the same time. Key phrase: 'thousands of concurrent NFS connections'." color="#0f9d58" />
+      </div>
+    );
+
+    case "fsx": return (
+      <div>
+        <Body>
+          Amazon FSx provides <b>fully managed file systems</b> for specific protocols and workloads.
+          While EFS covers Linux/NFS, FSx handles Windows, Lustre, OpenZFS, and NetApp ONTAP.
+          Choose FSx when you need a specific, industry-standard file system — not generic NFS.
+        </Body>
+
+        {/* FSx 4 options overview */}
+        <H2>📐 FSx Architecture — 4 File System Types</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 14, marginTop: 8, border: "2px solid #0078d4" }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: "#60a5fa", marginBottom: 10, textAlign: "center" }}>
+            Amazon FSx — Pick the File System Your App Already Knows
           </div>
-          <div style={{ padding: "12px 14px", background: "white" }}>
-            <div style={{ fontSize: 13, color: "#555", lineHeight: 1.65, marginBottom: 10 }}>
-              A hybrid service that connects your <b>on-premises data center</b> to AWS storage.
-              Your local apps use familiar protocols (NFS, SMB, iSCSI) — but data is stored in the cloud.
-            </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-              {[
-                { type: "S3 File Gateway", icon: "🪣", desc: "On-prem apps access S3 using NFS/SMB. Files cached locally for low-latency access.", color: "#FF9900" },
-                { type: "Volume Gateway", icon: "💾", desc: "Block storage volumes for on-prem apps, backed by S3. Supports cached/stored modes.", color: "#0f9d58" },
-                { type: "Tape Gateway", icon: "📼", desc: "Replace physical tape backups with virtual tapes stored in S3 Glacier. Seamless migration.", color: "#6a1b9a" },
-              ].map(({ type, icon, desc, color }) => (
-                <div key={type} style={{ border: `1px solid ${color}30`, borderTop: `3px solid ${color}`, borderRadius: 8, padding: "10px" }}>
-                  <div style={{ fontSize: 18, marginBottom: 4 }}>{icon}</div>
-                  <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 4 }}>{type}</div>
-                  <div style={{ fontSize: 11, color: "#555", lineHeight: 1.5 }}>{desc}</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            {[
+              { name: "FSx for Windows File Server", icon: "🪟", protocol: "SMB", color: "#0078d4", badge: "Windows workloads",
+                what: "Fully managed Windows file system. Same as Windows Server but in the cloud. Full AD integration.",
+                realWorld: "Migration of on-prem Windows file servers. SQL Server storage. VDI (Virtual Desktop Infrastructure).",
+                analogy: "Exactly like a \\fileserver on your corporate Windows network — just hosted on AWS." },
+              { name: "FSx for Lustre", icon: "⚡", protocol: "Lustre", color: "#FF9900", badge: "HPC & ML",
+                what: "High-performance parallel file system. Sub-millisecond latency. Integrates natively with S3.",
+                realWorld: "Training ML models (reads training data from S3). Genome sequencing. Financial risk simulations. Video rendering pipelines.",
+                analogy: "Formula 1 race car for storage — absurdly fast, built for maximum performance." },
+              { name: "FSx for NetApp ONTAP", icon: "🗃️", protocol: "NFS, SMB, iSCSI", color: "#00897b", badge: "Enterprise migration",
+                what: "Cloud version of NetApp ONTAP. Supports NFS, SMB, AND iSCSI simultaneously. Data deduplication, compression, snapshots.",
+                realWorld: "Enterprises running NetApp on-prem who want to move to AWS without rewriting apps. Multi-protocol access for mixed environments.",
+                analogy: "Bring your existing enterprise storage system to the cloud — same interface, no relearning." },
+              { name: "FSx for OpenZFS", icon: "🔵", protocol: "NFS", color: "#6a1b9a", badge: "Linux + macOS",
+                what: "OpenZFS in the cloud. Consistent sub-millisecond latency. ZFS snapshots and cloning. NFS v3–v4.2.",
+                realWorld: "Dev/test environments (cheap clones for each developer). Content management. Data analytics workloads on Linux.",
+                analogy: "Supercharged Linux file system with instant cloning — great for dev teams." },
+            ].map(({ name, icon, protocol, color, badge, what, realWorld, analogy }) => (
+              <div key={name} style={{ background: color + "18", border: `2px solid ${color}50`, borderRadius: 10, padding: 11 }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 7, marginBottom: 7 }}>
+                  <span style={{ fontSize: 20 }}>{icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 11.5, color }}>{name}</div>
+                    <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.55)" }}>Protocol: {protocol}</div>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.75)", lineHeight: 1.5, marginBottom: 6 }}>{what}</div>
+                <div style={{ fontSize: 10.5, color, fontWeight: 600, marginBottom: 4 }}>🎯 Real use: {realWorld}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", fontStyle: "italic" }}>💡 {analogy}</div>
+              </div>
+            ))}
           </div>
         </div>
 
-        <H2>📊 Complete Storage Comparison</H2>
+        <H2>FSx vs EFS — Which to Pick?</H2>
         <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 6 }}>
           {[
-            ["Service", "Type", "Access pattern", "Key differentiator"],
-            ["Instance Store", "Block", "One EC2 only", "Fastest, but temporary — lost on stop"],
-            ["Amazon EBS", "Block", "One EC2 only", "Persistent block storage, IOPS tunable"],
-            ["Amazon S3", "Object", "Global, any app", "Unlimited scale, 11-nines durability"],
-            ["Amazon EFS", "File (NFS)", "Many EC2s at once", "Shared, auto-scales, Linux only"],
-            ["Amazon FSx Windows", "File (SMB)", "Many servers", "Windows-native, AD integration"],
-            ["Amazon FSx Lustre", "File (Lustre)", "HPC clusters", "Sub-ms latency, integrates with S3"],
-            ["Storage Gateway", "Hybrid", "On-premises apps", "Bridge: on-prem access to cloud storage"],
+            ["Scenario", "Best Choice", "Why"],
+            ["Your app runs on Linux and needs shared storage", "Amazon EFS", "Native NFS, auto-scales, multi-AZ"],
+            ["Migrating Windows file server to AWS", "FSx for Windows", "SMB protocol, Active Directory, Windows-native"],
+            ["Training a machine learning model reading from S3", "FSx for Lustre", "Sub-ms latency, S3 native integration, parallel I/O"],
+            ["Enterprise NetApp migration to cloud", "FSx for NetApp ONTAP", "Same ONTAP interface, NFS + SMB + iSCSI"],
+            ["Dev team needs isolated test environments quickly", "FSx for OpenZFS", "Instant clones, fast provisioning, NFS"],
+            ["HPC genomics workload needing massive throughput", "FSx for Lustre", "Millions of IOPS, parallel distributed reads"],
           ].map((row, i) => (
             <div key={i} style={{
-              display: "grid", gridTemplateColumns: "1fr 0.7fr 1fr 1.5fr",
-              borderBottom: i < 7 ? "1px solid #f0f0f0" : "none",
+              display: "grid", gridTemplateColumns: "1.5fr 1fr 1.5fr",
+              borderBottom: i < 6 ? "1px solid #f0f0f0" : "none",
               background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
             }}>
               {row.map((cell, j) => (
                 <div key={j} style={{
-                  padding: "7px 10px", fontSize: i === 0 ? 11 : 12,
-                  fontWeight: i === 0 || j === 0 ? 700 : 400,
-                  color: i === 0 ? accent : j === 0 ? "#0f9d58" : "#555",
-                  borderRight: j < 3 ? "1px solid #f0f0f0" : "none",
+                  padding: "8px 10px", fontSize: i === 0 ? 11 : 12,
+                  fontWeight: i === 0 || j === 0 ? 700 : j === 1 ? 600 : 400,
+                  color: i === 0 ? accent : j === 1 ? "#0078d4" : "#555",
+                  borderRight: j < 2 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.4,
                 }}>{cell}</div>
               ))}
             </div>
@@ -941,13 +1026,488 @@ function SectionContent({ id }) {
         </div>
 
         <Callout icon="🎯" label="Exam Tip"
-          text="EFS = shared NFS for MULTIPLE Linux EC2 instances simultaneously, auto-scales. EBS = one EC2 only. FSx for Windows = SMB protocol, Windows workloads. FSx for Lustre = high-performance HPC. Storage Gateway = hybrid cloud bridge — on-premises apps access S3/EBS through familiar protocols." color="#546e7a" />
+          text="EFS = Linux/NFS generic shared storage. FSx for Windows = SMB, AD integration, Windows ONLY. FSx for Lustre = HPC/ML, fastest throughput, S3 integration. FSx for NetApp ONTAP = multi-protocol enterprise migration. FSx for OpenZFS = Linux NFS with ZFS features. Key differentiator: FSx = specific file system protocol; EFS = generic Linux NFS." color="#0078d4" />
+      </div>
+    );
+
+    case "gateway": return (
+      <div>
+        <Body>
+          AWS Storage Gateway is a <b>hybrid cloud service</b> — it bridges your existing on-premises
+          data center to AWS cloud storage. Your local apps keep working exactly as before,
+          but their data is backed up or stored in the cloud.
+        </Body>
+
+        {/* Architecture diagram */}
+        <H2>📐 How Storage Gateway Works</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 16, marginTop: 8, border: "2px solid #546e7a" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
+            {/* On-premises side */}
+            <div style={{ background: "#37474f25", border: "2px solid #607d8b", borderRadius: 10, padding: 12, textAlign: "center", minWidth: 140 }}>
+              <div style={{ fontSize: 9, color: "#90a4ae", fontWeight: 700, marginBottom: 8 }}>ON-PREMISES</div>
+              {["🖥️ Your App", "📄 Your Files", "📼 Backup Software"].map((item, i) => (
+                <div key={i} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 5, padding: "5px 8px", fontSize: 11, color: "rgba(255,255,255,0.8)", marginBottom: 5 }}>{item}</div>
+              ))}
+              <div style={{ fontSize: 9, color: "#90a4ae", marginTop: 4 }}>Uses NFS / SMB / iSCSI<br />— familiar protocols</div>
+            </div>
+
+            {/* Bridge/Gateway */}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, marginBottom: 6 }}>
+                <div style={{ width: 50, height: 2, background: "#607d8b" }} />
+                <div style={{ fontSize: 9, color: "#90a4ae" }}>internet</div>
+                <div style={{ width: 50, height: 2, background: "#607d8b" }} />
+              </div>
+              <div style={{ background: "#546e7a", borderRadius: 12, padding: "12px 16px", textAlign: "center" }}>
+                <div style={{ fontSize: 24, marginBottom: 4 }}>🌉</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "white" }}>Storage</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: "white" }}>Gateway</div>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.7)", marginTop: 4 }}>Virtual appliance</div>
+                <div style={{ fontSize: 9, color: "rgba(255,255,255,0.7)" }}>in your DC</div>
+              </div>
+            </div>
+
+            {/* AWS Cloud side */}
+            <div style={{ background: "#1e3a5f25", border: "2px solid #1a73e8", borderRadius: 10, padding: 12, textAlign: "center", minWidth: 160 }}>
+              <div style={{ fontSize: 9, color: "#60a5fa", fontWeight: 700, marginBottom: 8 }}>AWS CLOUD</div>
+              {[
+                { icon: "🪣", label: "Amazon S3", sub: "File & Tape Gateway" },
+                { icon: "💾", label: "Amazon EBS", sub: "Volume Gateway snapshots" },
+                { icon: "🧊", label: "S3 Glacier", sub: "Long-term archives" },
+              ].map(({ icon, label, sub }) => (
+                <div key={label} style={{ background: "#1a73e820", border: "1px solid #1a73e840", borderRadius: 6, padding: "5px 8px", marginBottom: 5 }}>
+                  <div style={{ fontSize: 12 }}>{icon}</div>
+                  <div style={{ fontSize: 10, color: "#60a5fa", fontWeight: 700 }}>{label}</div>
+                  <div style={{ fontSize: 8, color: "#888" }}>{sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ marginTop: 10, textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.6)" }}>
+            Your apps see familiar local storage → Gateway transparently syncs everything to AWS
+          </div>
+        </div>
+
+        <H2>The 3 Gateway Types — Deep Dive</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+
+          {/* S3 File Gateway */}
+          <div style={{ border: "1px solid #FF990030", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#FF9900", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 22 }}>🪣</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>1. S3 File Gateway</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>On-premises NFS/SMB → stores files in S3</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6, marginBottom: 8 }}>
+                    Your apps write files using NFS or SMB — but they land in S3. Recently accessed files are cached locally for low-latency access. Appears as a standard file server to your systems.
+                  </div>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 4 }}>How it works:</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+                    {["App writes file → Gateway caches locally", "Gateway uploads to S3 in background", "Old files evicted from cache, remain in S3", "Any AWS service can access files in S3"].map((s, i) => (
+                      <div key={i} style={{ display: "flex", gap: 6, fontSize: 11.5, color: "#555" }}>
+                        <span style={{ color: "#FF9900", fontWeight: 700 }}>{i+1}.</span>{s}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ background: "#FFF3E0", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 6 }}>🏭 Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                    A manufacturing company has 20TB of engineering drawings on their on-premises file server.
+                    They deploy S3 File Gateway — engineers still save files normally to <code>\fileserver\drawings</code>,
+                    but everything lands in S3. They save 70% on storage costs vs on-prem hardware,
+                    and any AWS workload (Lambda, Athena) can now process the drawings directly.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Volume Gateway */}
+          <div style={{ border: "1px solid #0f9d5830", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#0f9d58", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 22 }}>💾</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>2. Volume Gateway</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Block storage volumes (iSCSI) → backed up as EBS snapshots</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6, marginBottom: 8 }}>
+                    Creates iSCSI block volumes that on-premises servers mount like local disks. Data is backed up to AWS as EBS snapshots. Two modes: Cached (primary in S3, local cache) and Stored (primary local, backup to AWS).
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
+                    {[
+                      { mode: "Cached Mode", icon: "☁️", desc: "Data primarily in S3. Hot data cached locally.", color: "#0f9d58" },
+                      { mode: "Stored Mode", icon: "🖥️", desc: "Full data locally. Async backup to S3.", color: "#1a73e8" },
+                    ].map(({ mode, icon, desc, color }) => (
+                      <div key={mode} style={{ background: color + "10", border: `1px solid ${color}30`, borderRadius: 7, padding: "8px 9px" }}>
+                        <div style={{ fontWeight: 700, fontSize: 10.5, color, marginBottom: 3 }}>{icon} {mode}</div>
+                        <div style={{ fontSize: 10.5, color: "#555", lineHeight: 1.4 }}>{desc}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ background: "#e8f5e9", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#0f9d58", marginBottom: 6 }}>🏦 Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                    A regional bank runs Oracle on-premises on iSCSI SAN storage.
+                    They deploy Volume Gateway — Oracle still sees local iSCSI disks (no app changes needed),
+                    but EBS snapshots are created hourly to AWS. When disaster strikes,
+                    they can restore the entire database volume from AWS in minutes.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tape Gateway */}
+          <div style={{ border: "1px solid #6a1b9a30", borderRadius: 10, overflow: "hidden" }}>
+            <div style={{ background: "#6a1b9a", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ fontSize: 22 }}>📼</span>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>3. Tape Gateway</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>Virtual tape library → replaces physical tape drives → stored in S3/Glacier</div>
+              </div>
+            </div>
+            <div style={{ padding: "12px 14px", background: "white" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                <div>
+                  <div style={{ fontSize: 13, color: "#555", lineHeight: 1.6, marginBottom: 8 }}>
+                    If your company uses physical tape drives for backups, Tape Gateway replaces them with <b>virtual tapes</b> stored in S3. Your existing backup software (Veeam, Commvault, Veritas) talks to it exactly as if it were real tape hardware.
+                  </div>
+                  <div style={{ background: "#EDE7F6", borderRadius: 7, padding: "8px 10px" }}>
+                    <div style={{ fontSize: 11, color: "#6a1b9a", fontWeight: 700, marginBottom: 4 }}>Physical tape problems solved:</div>
+                    {["Tapes degrade over time", "Physical storage cost", "Slow retrieval (find the tape, load it)", "Lost/damaged tapes = data loss"].map(p => (
+                      <div key={p} style={{ fontSize: 11, color: "#555", marginBottom: 2 }}>❌ {p} → ✅ Virtual tape in S3</div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ background: "#EDE7F6", borderRadius: 8, padding: "10px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 6 }}>🏛️ Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+                    A law firm has 10 years of client files backed up to LTO-7 physical tapes stored in an offsite vault.
+                    They deploy Tape Gateway — their Veeam software now writes to virtual tapes instead.
+                    Virtual tapes go to S3 (active) or Glacier (archive). Monthly tape storage bill drops from $8,000 to $400.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Callout icon="🎯" label="Exam Tip"
+          text="Storage Gateway = hybrid cloud bridge. 3 types: S3 File Gateway (files → S3 via NFS/SMB), Volume Gateway (block storage → EBS snapshots, iSCSI), Tape Gateway (virtual tapes → S3/Glacier, replaces physical tape). Use when: you want cloud storage benefits WITHOUT changing existing on-premises apps." color="#546e7a" />
+      </div>
+    );
+
+    case "disaster": return (
+      <div>
+        <Body>
+          AWS Elastic Disaster Recovery (AWS DRS) continuously replicates your servers to AWS
+          so that when disaster strikes — hardware failure, ransomware, data center flood —
+          you can recover in <b>minutes, not days</b>.
+        </Body>
+
+        {/* DR Architecture diagram */}
+        <H2>📐 How Elastic Disaster Recovery Works</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 16, marginTop: 8, border: "2px solid #d32f2f" }}>
+          <div style={{ display: "flex", gap: 14, alignItems: "center", justifyContent: "center", flexWrap: "wrap" }}>
+            {/* Primary site */}
+            <div style={{ background: "#37474f25", border: "2px solid #607d8b", borderRadius: 10, padding: 12, textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#90a4ae", fontWeight: 700, marginBottom: 8 }}>PRIMARY SITE (On-prem or cloud)</div>
+              {["🖥️ Web Server", "🗄️ Database Server", "⚙️ App Server"].map(s => (
+                <div key={s} style={{ background: "rgba(255,255,255,0.08)", borderRadius: 5, padding: "5px 10px", fontSize: 11, color: "rgba(255,255,255,0.8)", marginBottom: 5 }}>{s}</div>
+              ))}
+              <div style={{ fontSize: 9, color: "#90a4ae", marginTop: 6 }}>Physical, virtual, or cloud</div>
+            </div>
+
+            {/* Replication arrow */}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 10, color: "#4caf50", fontWeight: 700, marginBottom: 4 }}>Continuous</div>
+              <div style={{ fontSize: 10, color: "#4caf50", marginBottom: 4 }}>block-level</div>
+              <div style={{ fontSize: 16, color: "#4caf50" }}>→→→</div>
+              <div style={{ fontSize: 10, color: "#4caf50", marginTop: 4 }}>replication</div>
+              <div style={{ fontSize: 8, color: "#888", marginTop: 2 }}>(near zero RPO)</div>
+            </div>
+
+            {/* AWS staging */}
+            <div style={{ background: "#1e3a5f25", border: "2px solid #1a73e8", borderRadius: 10, padding: 12, textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#60a5fa", fontWeight: 700, marginBottom: 8 }}>AWS (Staging — low cost)</div>
+              <div style={{ background: "#1a73e820", borderRadius: 7, padding: "8px 10px", marginBottom: 6 }}>
+                <div style={{ fontSize: 14 }}>🪣</div>
+                <div style={{ fontSize: 10, color: "#60a5fa" }}>Replication Servers</div>
+                <div style={{ fontSize: 8, color: "#888" }}>Continuously updated</div>
+              </div>
+              <div style={{ background: "#1a73e820", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontSize: 14 }}>💾</div>
+                <div style={{ fontSize: 10, color: "#60a5fa" }}>EBS Snapshots</div>
+                <div style={{ fontSize: 8, color: "#888" }}>All your server data</div>
+              </div>
+              <div style={{ fontSize: 9, color: "#90a4ae", marginTop: 6 }}>Pay only for staging,<br />not full-size recovery instances</div>
+            </div>
+
+            {/* Disaster arrow */}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 12, color: "#d32f2f", fontWeight: 700 }}>⚡ DISASTER</div>
+              <div style={{ fontSize: 14, color: "#d32f2f" }}>→</div>
+              <div style={{ fontSize: 9, color: "#888" }}>Launch recovery</div>
+              <div style={{ fontSize: 9, color: "#4caf50", fontWeight: 700 }}>minutes!</div>
+            </div>
+
+            {/* Recovery */}
+            <div style={{ background: "#0f9d5815", border: "2px solid #4caf50", borderRadius: 10, padding: 12, textAlign: "center" }}>
+              <div style={{ fontSize: 9, color: "#4caf50", fontWeight: 700, marginBottom: 8 }}>RECOVERY (Full-size EC2s)</div>
+              {["🖥️ Recovered Web", "🗄️ Recovered DB", "⚙️ Recovered App"].map(s => (
+                <div key={s} style={{ background: "#4caf5020", border: "1px solid #4caf5040", borderRadius: 5, padding: "5px 10px", fontSize: 11, color: "rgba(255,255,255,0.8)", marginBottom: 5 }}>{s}</div>
+              ))}
+              <div style={{ fontSize: 9, color: "#4caf50", marginTop: 6 }}>Exact copy of primary<br />RTO: minutes ✅</div>
+            </div>
+          </div>
+          <div style={{ marginTop: 12, background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "10px 14px", fontSize: 11.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.65, textAlign: "center" }}>
+            <b style={{ color: "#4caf50" }}>RPO</b> (Recovery Point Objective) = seconds to minutes — data loss is minimal.<br />
+            <b style={{ color: "#4caf50" }}>RTO</b> (Recovery Time Objective) = minutes — how fast you're back online.
+          </div>
+        </div>
+
+        <H2>Key Terms — RPO and RTO</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 6 }}>
+          <div style={{ border: "1px solid #1a73e830", borderTop: "3px solid #1a73e8", borderRadius: 8, padding: "12px" }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "#1a73e8", marginBottom: 6 }}>⏱️ RPO — Recovery Point Objective</div>
+            <div style={{ fontSize: 12.5, color: "#555", lineHeight: 1.6 }}>
+              <b>How much data can you afford to lose?</b><br />
+              If disaster happens at 3pm and RPO = 1 hour, you can lose at most the last hour of data (restore from 2pm backup).<br /><br />
+              AWS DRS achieves <b>seconds-to-minutes RPO</b> with continuous replication.
+            </div>
+          </div>
+          <div style={{ border: "1px solid #0f9d5830", borderTop: "3px solid #0f9d58", borderRadius: 8, padding: "12px" }}>
+            <div style={{ fontWeight: 700, fontSize: 13, color: "#0f9d58", marginBottom: 6 }}>⏱️ RTO — Recovery Time Objective</div>
+            <div style={{ fontSize: 12.5, color: "#555", lineHeight: 1.6 }}>
+              <b>How quickly can you be back online?</b><br />
+              If RTO = 4 hours, your systems must be back up within 4 hours of disaster.<br /><br />
+              AWS DRS achieves <b>minutes RTO</b> — launch full-size EC2s from staging.
+            </div>
+          </div>
+        </div>
+
+        <H2>🎯 Real-World Examples</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
+          {[
+            { industry: "🏥 Healthcare — Hospital Systems", color: "#d32f2f",
+              problem: "Patient records on on-premises servers. Ransomware attack encrypts all hospital data at 2am. ICU can't access patient charts.",
+              solution: "AWS DRS continuously replicates hospital servers to AWS. Within 15 minutes of attack, IT recovers all servers to pre-attack state. Doctors access patient records again. No ransom paid.",
+              rpo: "~5 minutes", rto: "~15 minutes" },
+            { industry: "🏦 Financial Services — Regional Bank", color: "#1a73e8",
+              problem: "Core banking transaction servers go down due to data center flooding. Thousands of ATMs offline. Customers can't access funds.",
+              solution: "Bank failover to AWS recovery instances in 10 minutes. Transaction processing restored. ATMs back online. Regulatory compliance maintained through continuous replication.",
+              rpo: "~1 minute", rto: "~10 minutes" },
+            { industry: "🏭 Manufacturing — Global Factory", color: "#FF9900",
+              problem: "Production planning ERP system goes down during peak season. Factory floor halts. Supply chain disrupted. Every hour offline = $500K lost.",
+              solution: "AWS DRS launches recovery ERP servers in 20 minutes. Factory operations resume. Non-disruptive DR testing done monthly to validate recovery procedures.",
+              rpo: "~2 minutes", rto: "~20 minutes" },
+          ].map(({ industry, color, problem, solution, rpo, rto }) => (
+            <div key={industry} style={{ border: `1px solid ${color}30`, borderLeft: `4px solid ${color}`, borderRadius: 9, padding: "12px 14px" }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color, marginBottom: 8 }}>{industry}</div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 8 }}>
+                <div style={{ background: "#fce4ec", borderRadius: 7, padding: "8px 10px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 10.5, color: "#d32f2f", marginBottom: 3 }}>❌ The Disaster</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{problem}</div>
+                </div>
+                <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 10.5, color: "#0f9d58", marginBottom: 3 }}>✅ AWS DRS Recovery</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{solution}</div>
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <span style={{ fontSize: 11, background: color + "15", color, border: `1px solid ${color}30`, borderRadius: 10, padding: "3px 10px", fontWeight: 700 }}>RPO: {rpo}</span>
+                <span style={{ fontSize: 11, background: "#0f9d5815", color: "#0f9d58", border: "1px solid #0f9d5830", borderRadius: 10, padding: "3px 10px", fontWeight: 700 }}>RTO: {rto}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <H2>Benefits vs Traditional DR</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 6 }}>
+          <div style={{ background: "#fce4ec", borderRadius: 8, padding: "10px 12px", border: "1px solid #d32f2f30" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#d32f2f", marginBottom: 6 }}>❌ Traditional DR (secondary DC)</div>
+            {["Build and maintain a second data center", "Pay for hardware 24/7 even if never used", "Manual failover takes hours or days", "Expensive quarterly DR tests", "Limited to fixed capacity at secondary site"].map(p => <div key={p} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>• {p}</div>)}
+          </div>
+          <div style={{ background: "#e8f5e9", borderRadius: 8, padding: "10px 12px", border: "1px solid #0f9d5830" }}>
+            <div style={{ fontWeight: 700, fontSize: 12, color: "#0f9d58", marginBottom: 6 }}>✅ AWS Elastic DR</div>
+            {["No secondary data center needed", "Pay only for low-cost staging (not full servers)", "Automated failover in minutes", "Non-disruptive testing anytime", "Scale recovery instances up/down as needed"].map(p => <div key={p} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>• {p}</div>)}
+          </div>
+        </div>
+
+        <Callout icon="🎯" label="Exam Tip"
+          text="Elastic Disaster Recovery = continuous block-level replication of physical/virtual/cloud servers to AWS. RPO = seconds/minutes (how much data loss). RTO = minutes (how fast back online). Key benefit: eliminate expensive secondary data centers. Non-disruptive testing. Use cases: healthcare, financial, manufacturing — any business-critical system." color="#d32f2f" />
+      </div>
+    );
+
+    case "compare": return (
+      <div>
+        <Body>
+          This is the hardest part of Module 6 — knowing WHICH storage service to use WHEN.
+          Here are the <b>real-world scenarios from the course</b>, plus a complete decision guide.
+        </Body>
+
+        {/* Three coffee shop scenarios */}
+        <H2>☕ Cloud in Real Life — 3 Scenarios</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 6 }}>
+          {[
+            {
+              scenario: "Scenario 1: Coffee Shop Website",
+              color: "#FF9900", icon: "🌐",
+              description: "The coffee shop hosts a website with HTML, CSS, JavaScript, product images, and promotional videos. Traffic spikes on weekends.",
+              question: "Which storage service?",
+              answer: "Amazon S3",
+              why: [
+                "Static files (HTML, CSS, images, videos) = objects → S3 is perfect",
+                "S3 auto-scales with any traffic spike — no configuration needed",
+                "Enable S3 static website hosting → instant website",
+                "Pay only for storage used + data transferred out",
+                "CloudFront CDN on top → global fast delivery",
+              ],
+              notThis: "NOT EBS (no EC2 needed). NOT EFS (not shared file access). NOT Instance Store (not persistent).",
+            },
+            {
+              scenario: "Scenario 2: Fitness App — Database Bottleneck",
+              color: "#0f9d58", icon: "🏋️",
+              description: "A fitness app lets members book classes. The database (running on EC2) is struggling with read/write performance. Popular classes fill up in seconds.",
+              question: "Which storage + optimization?",
+              answer: "Amazon EBS (io2 Provisioned IOPS SSD)",
+              why: [
+                "Database running on EC2 needs block-level storage — only EBS provides this",
+                "Current volume type (gp2/gp3) not performant enough for high-IOPS workload",
+                "Migrate to io2 Provisioned IOPS SSD — highest performance for databases",
+                "Consistent low-latency reads/writes — critical for booking class spots",
+                "EBS volume can be resized and re-typed without stopping the instance",
+              ],
+              notThis: "NOT S3 (object storage, not designed for rapid continuous rewrite operations databases require). NOT EFS (shared file system, not block-level DB storage).",
+            },
+            {
+              scenario: "Scenario 3: Automotive Repair Chain",
+              color: "#6a1b9a", icon: "🔧",
+              description: "50 mechanic shops across the country need simultaneous real-time access to the same HD repair videos, technical diagrams, and diagnostic manuals from multiple devices.",
+              question: "Which storage service?",
+              answer: "Amazon EFS",
+              why: [
+                "Multiple locations accessing THE SAME files simultaneously → needs shared file system",
+                "EFS supports thousands of concurrent NFS connections across multiple EC2s",
+                "Scales to petabytes automatically as media library grows",
+                "Multi-AZ redundancy — data survives AZ failure",
+                "Low-latency performance for large media file access",
+              ],
+              notThis: "NOT S3 (object storage — not real-time shared file system access). NOT EBS (single instance only — can't share across 50 locations). NOT Instance Store (temporary).",
+            },
+          ].map(({ scenario, color, icon, description, question, answer, why, notThis }) => (
+            <div key={scenario} style={{ border: `1px solid ${color}30`, borderRadius: 12, overflow: "hidden" }}>
+              <div style={{ background: color, padding: "10px 14px" }}>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "white" }}>{icon} {scenario}</div>
+              </div>
+              <div style={{ padding: "12px 14px", background: "white" }}>
+                <div style={{ fontSize: 13, color: "#555", lineHeight: 1.65, marginBottom: 10 }}>{description}</div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 5 }}>❓ {question}</div>
+                    <div style={{ background: color + "18", border: `2px solid ${color}`, borderRadius: 8, padding: "8px 12px", marginBottom: 8 }}>
+                      <div style={{ fontWeight: 800, fontSize: 14, color }}>✅ {answer}</div>
+                    </div>
+                    <div style={{ fontWeight: 700, fontSize: 11, color, marginBottom: 4 }}>Why:</div>
+                    {why.map(r => <div key={r} style={{ fontSize: 11.5, color: "#555", marginBottom: 3 }}>→ {r}</div>)}
+                  </div>
+                  <div style={{ background: "#fce4ec", borderRadius: 8, padding: "10px 12px" }}>
+                    <div style={{ fontWeight: 700, fontSize: 11, color: "#d32f2f", marginBottom: 5 }}>❌ Why not others?</div>
+                    <div style={{ fontSize: 11.5, color: "#555", lineHeight: 1.6 }}>{notThis}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Master decision table */}
+        <H2>🎯 Complete Decision Guide</H2>
+        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 6 }}>
+          {[
+            ["If you need…", "Use this", "Key reason"],
+            ["Fast temporary storage for EC2 processing", "Instance Store", "Physically attached, fastest possible, but temporary"],
+            ["Persistent disk for EC2 database", "EBS (io2/gp3)", "Block storage, survives stops, high IOPS"],
+            ["Back up EBS volumes automatically", "EBS Snapshots + DLM", "Incremental, stored in S3, automated via DLM"],
+            ["Store files/images/videos/backups at any scale", "Amazon S3", "Object storage, unlimited, 11-9s durability"],
+            ["Host a static website cheaply", "Amazon S3", "Static website hosting feature, no server needed"],
+            ["Archive data for 7+ years (compliance)", "S3 Glacier Deep Archive", "Cheapest storage, 12hr retrieval, compliance-ready"],
+            ["Shared file system for multiple Linux EC2s", "Amazon EFS", "NFS, multi-AZ, auto-scales, concurrent access"],
+            ["Windows file server in AWS", "FSx for Windows", "SMB, Active Directory, Windows-native"],
+            ["HPC / ML training workloads needing speed", "FSx for Lustre", "Sub-ms latency, S3 integration, parallel I/O"],
+            ["On-premises apps access cloud storage", "Storage Gateway", "Hybrid bridge, existing protocols unchanged"],
+            ["Replace physical tape backups with cloud", "Storage Gateway (Tape)", "Virtual tapes in S3/Glacier, works with existing software"],
+            ["Disaster recovery (minutes RTO/RPO)", "Elastic Disaster Recovery", "Continuous replication, launch recovery in minutes"],
+          ].map((row, i) => (
+            <div key={i} style={{
+              display: "grid", gridTemplateColumns: "1.5fr 1fr 1.5fr",
+              borderBottom: i < 12 ? "1px solid #f0f0f0" : "none",
+              background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
+            }}>
+              {row.map((cell, j) => (
+                <div key={j} style={{
+                  padding: "8px 10px", fontSize: i === 0 ? 11 : 12,
+                  fontWeight: i === 0 || j === 1 ? 700 : 400,
+                  color: i === 0 ? accent : j === 1 ? "#0f9d58" : j === 0 ? "#333" : "#555",
+                  borderRight: j < 2 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.45,
+                }}>{cell}</div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        {/* S3 vs EBS vs EFS summary */}
+        <H2>📊 S3 vs EBS vs EFS — The Big Three Compared</H2>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginTop: 6 }}>
+          {[
+            { service: "Amazon S3", icon: "🪣", color: "#FF9900", type: "Object Storage",
+              access: "Any app, any device, internet", scale: "Unlimited (auto)", protocol: "HTTP/HTTPS",
+              analogy: "Google Drive — store anything, access from anywhere",
+              bestFor: ["Images, videos, documents", "Backups and archives", "Static websites", "Data lakes", "Any file that doesn't need real-time byte-level editing"] },
+            { service: "Amazon EBS", icon: "💾", color: "#0f9d58", type: "Block Storage",
+              access: "ONE EC2 instance only", scale: "Up to 64TB (manual resize)", protocol: "Internal to EC2",
+              analogy: "Hard drive in your laptop — fast, local, one user",
+              bestFor: ["Databases (MySQL, PostgreSQL)", "OS boot volumes", "App requiring frequent small writes", "Low-latency transactional workloads"] },
+            { service: "Amazon EFS", icon: "📁", color: "#1a73e8", type: "File Storage (NFS)",
+              access: "MANY EC2 instances simultaneously", scale: "Petabytes (auto)", protocol: "NFS (Linux only)",
+              analogy: "Shared network drive — whole team accesses same files",
+              bestFor: ["Shared content repositories", "Multiple web servers same files", "Dev environments with shared code", "Media processing pipelines"] },
+          ].map(({ service, icon, color, type, access, scale, protocol, analogy, bestFor }) => (
+            <div key={service} style={{ border: `1px solid ${color}30`, borderTop: `3px solid ${color}`, borderRadius: 9, padding: "12px" }}>
+              <div style={{ fontSize: 24, marginBottom: 6 }}>{icon}</div>
+              <div style={{ fontWeight: 700, fontSize: 13, color, marginBottom: 3 }}>{service}</div>
+              <div style={{ fontSize: 10.5, color: "#888", marginBottom: 8 }}>{type}</div>
+              {[["Access", access], ["Scale", scale], ["Protocol", protocol]].map(([k, v]) => (
+                <div key={k} style={{ fontSize: 11, color: "#555", marginBottom: 3 }}><b style={{ color }}>{k}:</b> {v}</div>
+              ))}
+              <div style={{ fontSize: 11, fontStyle: "italic", color: color, margin: "6px 0", padding: "5px 7px", background: color + "10", borderRadius: 5 }}>💡 {analogy}</div>
+              <div style={{ fontWeight: 700, fontSize: 10.5, color, marginBottom: 3 }}>Best for:</div>
+              {bestFor.map(b => <div key={b} style={{ fontSize: 10.5, color: "#555", marginBottom: 2 }}>• {b}</div>)}
+            </div>
+          ))}
+        </div>
+
+        <Callout icon="🎯" label="Final Exam Tip — The Three Rules"
+          text="Rule 1: If data is accessed by ONE EC2 instance and needs block-level access → EBS. Rule 2: If data is accessed by MULTIPLE EC2 instances simultaneously → EFS. Rule 3: If data is files/objects accessed from anywhere (not just EC2) → S3. Everything else: Instance Store (temp), FSx (specific file systems), Storage Gateway (hybrid), Elastic DR (disaster recovery)." color={accent} />
       </div>
     );
 
     default: return null;
   }
 }
+
 
 // ─── Cheat Sheet ──────────────────────────────────────────────────────────────
 const cheatRows = [
