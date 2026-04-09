@@ -3,7 +3,7 @@ import { useState } from "react";
 const accent = "#FF9900";
 const accentDark = "#CC7A00";
 
-// ─── Helpers ────────────────────────────────────────────────────────────────
+// ─── Helperss ────────────────────────────────────────────────────────────────
 function Badge({ text, color }) {
   return (
     <span style={{
