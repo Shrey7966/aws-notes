@@ -77,12 +77,14 @@ function Table({ rows, cols }) {
 }
 
 const sections = [
-  { id: "intro",       emoji: "🗃️", title: "Database Overview",  badge: "Relational vs NoSQL",        badgeColor: "#1a73e8" },
-  { id: "rds",         emoji: "🐬", title: "Amazon RDS",          badge: "Managed Relational DB",      badgeColor: "#0f9d58" },
-  { id: "aurora",      emoji: "⭐", title: "Amazon Aurora",       badge: "High-Performance SQL",       badgeColor: "#FF9900" },
-  { id: "dynamodb",    emoji: "⚡", title: "Amazon DynamoDB",     badge: "Serverless NoSQL",           badgeColor: "#6a1b9a" },
-  { id: "elasticache", emoji: "🚀", title: "Amazon ElastiCache",  badge: "In-Memory Caching",          badgeColor: "#d32f2f" },
-  { id: "compare",     emoji: "⚖️", title: "When to Use Which?",  badge: "Real-World Decision Guide",  badgeColor: "#546e7a" },
+  { id: "intro",       emoji: "🗃️", title: "DB Overview",         badge: "Relational vs NoSQL",           badgeColor: "#e65100" },
+  { id: "rds",         emoji: "🐬", title: "Amazon RDS",           badge: "Managed Relational DB",         badgeColor: "#0078d4" },
+  { id: "aurora",      emoji: "⚡", title: "Amazon Aurora",        badge: "5x MySQL · 3x PostgreSQL",      badgeColor: "#6a1b9a" },
+  { id: "dynamodb",    emoji: "🚀", title: "Amazon DynamoDB",      badge: "Serverless NoSQL",              badgeColor: "#d32f2f" },
+  { id: "elasticache", emoji: "💾", title: "ElastiCache",          badge: "Redis · Valkey · Memcached",    badgeColor: "#0f9d58" },
+  { id: "special",     emoji: "🔬", title: "Purpose-Built DBs",    badge: "DocumentDB · Neptune · DAX",   badgeColor: "#FF9900" },
+  { id: "backup",      emoji: "🛡️", title: "AWS Backup",           badge: "Centralised Protection",        badgeColor: "#546e7a" },
+  { id: "compare",     emoji: "⚖️", title: "When to Use Which?",   badge: "Decision Guide",                badgeColor: "#1a73e8" },
 ];
 
 function SectionContent({ id }) {
@@ -525,118 +527,165 @@ function SectionContent({ id }) {
     case "elasticache": return (
       <div>
         <Body>
-          Amazon ElastiCache is an <b>in-memory caching service</b>. It is NOT a primary database.
-          It sits in front of your database (RDS or DynamoDB) and stores frequently-accessed data
-          in RAM — so your app gets results in <b>under 1 millisecond</b> instead of querying
-          the database every time.
+          Amazon ElastiCache puts an <b>in-memory cache layer</b> between your application and database.
+          Instead of hitting the database for the same popular data repeatedly,
+          the cache serves it from RAM — delivering results in <b>microseconds</b> instead of milliseconds.
         </Body>
 
-        <H2>Without vs With Cache — The Difference</H2>
-        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 14, marginTop: 8, border: "2px solid #d32f2f" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div style={{ background: "#d32f2f15", border: "2px solid #d32f2f", borderRadius: 10, padding: 10 }}>
-              <div style={{ fontWeight: 700, fontSize: 11, color: "#ef9a9a", marginBottom: 8, textAlign: "center" }}>Without ElastiCache</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center" }}>
-                {[
-                  { label: "User Request", color: "#888" },
-                  { label: "↓ every single request", color: "#d32f2f", small: true },
-                  { label: "Your App", color: "#FF9900" },
-                  { label: "↓ SQL query every time", color: "#d32f2f", small: true },
-                  { label: "RDS Database", color: "#0f9d58" },
-                  { label: "↓ disk reads", color: "#d32f2f", small: true },
-                  { label: "Result in ~50ms", color: "#d32f2f" },
-                ].map(({ label, color, small }, i) => (
-                  <div key={i} style={{ fontSize: small ? 9 : 11, color, fontWeight: small ? 400 : 600, textAlign: "center" }}>{label}</div>
-                ))}
+        {/* Architecture diagram matching screenshot */}
+        <H2>📐 How ElastiCache Fits in Your Architecture</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 16, marginTop: 8, border: "2px solid #0f9d58" }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: "#81C784", marginBottom: 14, textAlign: "center" }}>
+            Users → App (EC2) → ElastiCache (fast path) → RDS (slow path only on cache miss)
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+            {/* Users */}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ background: "#546e7a20", border: "2px solid #90a4ae", borderRadius: 10, padding: "12px 14px" }}>
+                <div style={{ fontSize: 26 }}>👥</div>
+                <div style={{ fontSize: 11, color: "#90a4ae", fontWeight: 700, marginTop: 4 }}>Users</div>
               </div>
             </div>
-            <div style={{ background: "#0f9d5815", border: "2px solid #4caf50", borderRadius: 10, padding: 10 }}>
-              <div style={{ fontWeight: 700, fontSize: 11, color: "#4caf50", marginBottom: 8, textAlign: "center" }}>With ElastiCache</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 4, alignItems: "center" }}>
-                {[
-                  { label: "User Request", color: "#888" },
-                  { label: "↓", color: "#4caf50", small: true },
-                  { label: "Your App", color: "#FF9900" },
-                  { label: "↓ check cache first", color: "#4caf50", small: true },
-                  { label: "ElastiCache (RAM)", color: "#d32f2f" },
-                ].map(({ label, color, small }, i) => (
-                  <div key={i} style={{ fontSize: small ? 9 : 11, color, fontWeight: small ? 400 : 600, textAlign: "center" }}>{label}</div>
-                ))}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6, width: "100%", marginTop: 4 }}>
-                  <div style={{ background: "#4caf5020", borderRadius: 5, padding: "5px 7px", textAlign: "center" }}>
-                    <div style={{ fontSize: 9, color: "#4caf50", fontWeight: 700 }}>CACHE HIT</div>
-                    <div style={{ fontSize: 9, color: "#888" }}>Return in ~1ms</div>
-                    <div style={{ fontSize: 9, color: "#4caf50" }}>No DB needed!</div>
-                  </div>
-                  <div style={{ background: "#88882020", borderRadius: 5, padding: "5px 7px", textAlign: "center" }}>
-                    <div style={{ fontSize: 9, color: "#888", fontWeight: 700 }}>CACHE MISS</div>
-                    <div style={{ fontSize: 9, color: "#888" }}>Query DB</div>
-                    <div style={{ fontSize: 9, color: "#888" }}>Store in cache</div>
-                  </div>
+            <div style={{ color: "#546e7a", fontSize: 18 }}>→</div>
+            {/* App / EC2 */}
+            <div style={{ textAlign: "center" }}>
+              <div style={{ background: "#FF990025", border: "2px solid #FF9900", borderRadius: 10, padding: "12px 14px" }}>
+                <div style={{ fontSize: 26 }}>🖥️</div>
+                <div style={{ fontSize: 11, color: "#FF9900", fontWeight: 700, marginTop: 4 }}>Application</div>
+                <div style={{ fontSize: 9, color: "#888" }}>Amazon EC2</div>
+              </div>
+            </div>
+            {/* Two arrows from EC2 */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, alignItems: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 40, height: 2, background: "#0f9d58", borderTop: "2px dashed #0f9d58" }} />
+                <div style={{ fontSize: 8, color: "#0f9d58", fontWeight: 700, minWidth: 80, textAlign: "center" }}>1. Check cache first</div>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                <div style={{ width: 40, height: 2, background: "#9c27b0" }} />
+                <div style={{ fontSize: 8, color: "#9c27b0", fontWeight: 700, minWidth: 80, textAlign: "center" }}>2. Only on miss → DB</div>
+              </div>
+            </div>
+            {/* ElastiCache + RDS stacked */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+              {/* ElastiCache top - cache hit path */}
+              <div style={{ textAlign: "center" }}>
+                <div style={{ background: "#0f9d5825", border: "2px dashed #4caf50", borderRadius: 10, padding: "10px 14px" }}>
+                  <div style={{ fontSize: 24 }}>⚡</div>
+                  <div style={{ fontSize: 11, color: "#4caf50", fontWeight: 700, marginTop: 2 }}>Amazon</div>
+                  <div style={{ fontSize: 11, color: "#4caf50", fontWeight: 700 }}>ElastiCache</div>
+                  <div style={{ fontSize: 9, color: "#888", marginTop: 2 }}>Redis / Memcached</div>
+                  <div style={{ fontSize: 9, color: "#4caf50", fontWeight: 700 }}>~microseconds ⚡</div>
                 </div>
+                <div style={{ fontSize: 8, color: "#0f9d58", marginTop: 4 }}>→ cache hit: return fast</div>
+              </div>
+              <div style={{ width: 2, height: 12, background: "#9c27b060" }} />
+              {/* RDS bottom - cache miss path */}
+              <div style={{ textAlign: "center" }}>
+                <div style={{ background: "#9c27b025", border: "2px solid #9c27b0", borderRadius: 10, padding: "10px 14px" }}>
+                  <div style={{ fontSize: 24 }}>🗃️</div>
+                  <div style={{ fontSize: 11, color: "#ce93d8", fontWeight: 700, marginTop: 2 }}>Amazon</div>
+                  <div style={{ fontSize: 11, color: "#ce93d8", fontWeight: 700 }}>RDS</div>
+                  <div style={{ fontSize: 9, color: "#888", marginTop: 2 }}>MySQL / PostgreSQL</div>
+                  <div style={{ fontSize: 9, color: "#ce93d8", fontWeight: 700 }}>~milliseconds</div>
+                </div>
+                <div style={{ fontSize: 8, color: "#9c27b0", marginTop: 4 }}>→ fetches, then caches result</div>
               </div>
             </div>
           </div>
-          <div style={{ marginTop: 10, textAlign: "center", fontSize: 11.5, color: "rgba(255,255,255,0.65)" }}>
-            Popular product page queried 10,000 times/min — ElastiCache serves 9,800 from RAM. Only 200 hit RDS.
+          <div style={{ marginTop: 12, background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "10px 14px", fontSize: 11.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.65 }}>
+            <b style={{ color: "#4caf50" }}>Cache HIT:</b> ElastiCache has the data → return in microseconds → never touch RDS<br />
+            <b style={{ color: "#9c27b0" }}>Cache MISS:</b> ElastiCache doesn't have it → fetch from RDS → store in cache → future requests are fast
           </div>
         </div>
 
-        <H2>Redis vs Memcached</H2>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginTop: 6 }}>
+        {/* ElastiCache = managed service explanation */}
+        <H2>🔑 ElastiCache, Redis, and Memcached — How They Relate</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 10, padding: "14px 16px", marginTop: 6, border: "1px solid #0f9d5840" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 12 }}>
+            {[
+              { icon: "🍽️", title: "ElastiCache", subtitle: "The Restaurant", desc: "The managed AWS service. Handles provisioning, patching, scaling. You choose your 'kitchen' inside it.", color: "#0f9d58" },
+              { icon: "👨‍🍳", title: "Redis", subtitle: "Full Kitchen with Many Tools", desc: "Rich data types, persistence, replication, pub/sub, sorted sets. Powerful — more than just a cache.", color: "#d32f2f" },
+              { icon: "🍔", title: "Memcached", subtitle: "Fast Snack Counter", desc: "Pure key-value caching. Extremely simple and fast. No persistence, no complex data types.", color: "#FF9900" },
+            ].map(({ icon, title, subtitle, desc, color }) => (
+              <div key={title} style={{ background: color + "15", border: `1px solid ${color}40`, borderRadius: 9, padding: "10px 11px", textAlign: "center" }}>
+                <div style={{ fontSize: 28, marginBottom: 5 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 12, color, marginBottom: 2 }}>{title}</div>
+                <div style={{ fontSize: 10, color: "rgba(255,255,255,0.5)", marginBottom: 6 }}>{subtitle}</div>
+                <div style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", lineHeight: 1.4 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 8, padding: "9px 12px", fontSize: 12, color: "rgba(255,255,255,0.8)", textAlign: "center" }}>
+            <b style={{ color: "#0f9d58" }}>ElastiCache</b> = managed service wrapper &nbsp;|&nbsp;
+            <b style={{ color: "#d32f2f" }}>Redis</b> = powerful in-memory data store inside it &nbsp;|&nbsp;
+            <b style={{ color: "#FF9900" }}>Memcached</b> = simple fast cache inside it
+          </div>
+        </div>
+
+        {/* Redis vs Memcached table */}
+        <H2>⚖️ Redis vs Memcached — Which Engine?</H2>
+        <div style={{ borderRadius: 8, overflow: "hidden", border: "1px solid #e0e0e0", marginTop: 6 }}>
           {[
-            { engine: "Redis / Valkey", icon: "🟥", color: "#d32f2f",
-              features: ["Persistence — data survives restarts","Replication across AZs","Advanced data structures (lists, sorted sets)","Pub/Sub messaging","Lua scripting"],
-              use: "Leaderboards, session storage, real-time analytics, pub/sub",
-              analogy: "Swiss Army knife — powerful, many uses" },
-            { engine: "Memcached", icon: "⬜", color: "#1a73e8",
-              features: ["Simple key-value only","Multi-threaded — uses multiple CPU cores","No persistence (lost on restart)","Simpler to operate","Horizontal scaling"],
-              use: "Simple caching, reducing database read load",
-              analogy: "Pure lookup table — simple and fast" },
-          ].map(({ engine, icon, color, features, use, analogy }) => (
-            <div key={engine} style={{ border: `1px solid ${color}30`, borderTop: `3px solid ${color}`, borderRadius: 9, padding: "12px" }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color, marginBottom: 8 }}>{icon} {engine}</div>
-              {features.map(f => <div key={f} style={{ fontSize: 11.5, color: "#555", marginBottom: 3 }}>• {f}</div>)}
-              <div style={{ marginTop: 7, fontSize: 11.5, color: "#555" }}><b style={{ color }}>Best for:</b> {use}</div>
-              <div style={{ marginTop: 5, fontSize: 11, fontStyle: "italic", color, padding: "4px 7px", background: color + "10", borderRadius: 5 }}>💡 {analogy}</div>
+            ["Feature", "Redis / Valkey", "Memcached"],
+            ["Data types", "Rich: strings, lists, sets, sorted sets, hashes, streams", "Simple key-value only"],
+            ["Persistence", "✅ Yes — data survives restarts", "❌ No — data lost on restart"],
+            ["Replication", "✅ Multi-AZ failover available", "❌ No built-in replication"],
+            ["Performance", "Very fast (sub-ms)", "Very fast (sub-ms)"],
+            ["Pub/Sub", "✅ Messaging built in", "❌ Not supported"],
+            ["Complexity", "More features, slightly more complex", "Simpler setup and management"],
+            ["Use for", "Sessions, leaderboards, queues, real-time", "Simple read caching only"],
+            ["Choose when", "You need more than caching", "You need pure, simple caching"],
+          ].map((row, i) => (
+            <div key={i} style={{
+              display: "grid", gridTemplateColumns: "1fr 1.4fr 1.4fr",
+              borderBottom: i < 8 ? "1px solid #f0f0f0" : "none",
+              background: i === 0 ? "#263238" : i % 2 === 0 ? "#fafafa" : "white",
+            }}>
+              {row.map((cell, j) => (
+                <div key={j} style={{
+                  padding: "8px 10px", fontSize: i === 0 ? 11 : 12,
+                  fontWeight: i === 0 || j === 0 ? 700 : 400,
+                  color: i === 0 ? accent : j === 0 ? "#333" : j === 1 ? "#d32f2f" : "#FF9900",
+                  borderRight: j < 2 ? "1px solid #f0f0f0" : "none",
+                  lineHeight: 1.45,
+                }}>{cell}</div>
+              ))}
             </div>
           ))}
         </div>
 
-        <H2>Real-World ElastiCache Examples</H2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 6 }}>
+        <H2>🎯 Real-World Examples</H2>
+        <div style={{ display: "flex", flexDirection: "column", gap: 6, marginTop: 6 }}>
           {[
-            { icon: "🎮", title: "Gaming Leaderboard", color: "#d32f2f",
-              scenario: "5 million players. Global leaderboard (top 100) requested 500,000 times per minute.",
-              without: "RDS sorts 5M rows on every request. Database crushes under load. Stale leaderboards.",
-              with: "Redis sorted set in ElastiCache. Score updates write to Redis. Top-100 query returns in <1ms. DB updated in background.",
-              result: "500K requests/min handled. Zero DB overload. Real-time accurate leaderboard." },
-            { icon: "🛒", title: "E-Commerce Session Storage", color: "#FF9900",
-              scenario: "200,000 active user sessions during a sale. Every page load reads session data.",
-              without: "Every page load queries RDS for session. 4M DB queries/minute. Database collapses during sale.",
-              with: "Sessions stored in Redis. Page load reads from ElastiCache RAM in <1ms. Cart persists across requests.",
-              result: "DB load down 97%. 4M queries reduced to 50K. Site stays fast during peak." },
-          ].map(({ icon, title, color, scenario, without: wo, with: wi, result }) => (
-            <div key={title} style={{ border: `1px solid ${color}25`, borderLeft: `4px solid ${color}`, borderRadius: 9, padding: "12px 14px" }}>
-              <div style={{ fontWeight: 700, fontSize: 13, color, marginBottom: 7 }}>{icon} {title}</div>
-              <div style={{ fontSize: 12.5, color: "#555", lineHeight: 1.6, marginBottom: 8 }}>Scenario: {scenario}</div>
+            { industry: "🛒 E-Commerce — Product Catalogue", color: "#0f9d58",
+              problem: "50,000 users browsing the same top products. Every page view hits RDS 8 times. DB CPU at 95%.",
+              solution: "Cache product data in ElastiCache Redis with 1hr TTL. 95% of requests served from cache in <1ms. DB CPU drops to 15%. Page load: 4s → 0.2s." },
+            { industry: "🎮 Gaming — Real-Time Leaderboard", color: "#d32f2f",
+              problem: "5M players updating scores every second. Leaderboard query from RDS takes 800ms. Players see stale data.",
+              solution: "Redis Sorted Sets in ElastiCache. Each score update: O(log n) insert. Leaderboard query: instant. 800ms → 0.3ms. Handles 100K updates/second." },
+            { industry: "🔐 Web App — Session Storage", color: "#FF9900",
+              problem: "User logs in. Session data (cart, auth token) stored in DB. Every page request = DB hit. 10M sessions = overloaded DB.",
+              solution: "Store sessions in ElastiCache. All reads: microsecond RAM lookup. 10× reduction in DB load. Scales to hundreds of millions of sessions." },
+          ].map(({ industry, color, problem, solution }) => (
+            <div key={industry} style={{ border: `1px solid ${color}25`, borderLeft: `4px solid ${color}`, borderRadius: 9, padding: "11px 14px" }}>
+              <div style={{ fontWeight: 700, fontSize: 13, color, marginBottom: 8 }}>{industry}</div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
                 <div style={{ background: "#fce4ec", borderRadius: 7, padding: "8px 10px" }}>
-                  <div style={{ fontWeight: 700, fontSize: 10.5, color: "#d32f2f", marginBottom: 3 }}>Without Cache</div>
-                  <div style={{ fontSize: 11.5, color: "#555", lineHeight: 1.5 }}>{wo}</div>
+                  <div style={{ fontWeight: 700, fontSize: 10.5, color: "#d32f2f", marginBottom: 3 }}>❌ Problem</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{problem}</div>
                 </div>
                 <div style={{ background: "#e8f5e9", borderRadius: 7, padding: "8px 10px" }}>
-                  <div style={{ fontWeight: 700, fontSize: 10.5, color: "#0f9d58", marginBottom: 3 }}>With ElastiCache</div>
-                  <div style={{ fontSize: 11.5, color: "#555", lineHeight: 1.5 }}>{wi}</div>
+                  <div style={{ fontWeight: 700, fontSize: 10.5, color: "#0f9d58", marginBottom: 3 }}>✅ With ElastiCache</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.5 }}>{solution}</div>
                 </div>
               </div>
-              <div style={{ marginTop: 7, fontSize: 12, background: color + "12", color, border: `1px solid ${color}25`, borderRadius: 5, padding: "5px 10px", fontWeight: 600 }}>Result: {result}</div>
             </div>
           ))}
         </div>
 
         <Callout icon="🎯" label="Exam Tip"
-          text="ElastiCache = in-memory cache, NOT a primary database. Sits IN FRONT of RDS or DynamoDB. Redis = advanced (persistence, sorted sets, pub/sub, replication). Memcached = simple (pure key-value, multi-threaded, no persistence). Key exam phrases that mean ElastiCache: 'reduce database latency', 'frequently accessed data', 'in-memory performance', 'microsecond reads'." color="#d32f2f" />
+          text="ElastiCache = managed in-memory caching service (the service layer). Redis = feature-rich: persistence, sorted sets, pub/sub, replication (choose for leaderboards, sessions, queues). Memcached = simple pure cache, multi-threaded, no persistence (choose for simple read caching). ElastiCache sits BETWEEN app and database — reduces DB load." color="#0f9d58" />
       </div>
     );
 
@@ -737,6 +786,307 @@ function SectionContent({ id }) {
 
         <Callout icon="🎯" label="Final Exam Tip — 3 Rules"
           text="Rule 1: Need SQL JOINs and relationships → RDS (standard) or Aurora (high performance). Rule 2: Need flexible schema + auto-scale + single-digit ms → DynamoDB. Rule 3: Repeatedly reading same data and need microsecond speed → ElastiCache (IN FRONT of DB, not instead). Exam key phrases: 'structured relational' = RDS/Aurora. 'flexible schema' or 'key-value' = DynamoDB. 'in-memory' or 'caching' or 'reduce DB load' = ElastiCache." color={accent} />
+      </div>
+    );
+
+    case "special": return (
+      <div>
+        <Body>
+          Beyond RDS, Aurora, and DynamoDB, AWS offers <b>purpose-built databases</b> designed
+          for very specific data shapes. No one-size-fits-all — use the right tool for the job.
+        </Body>
+
+        {/* Purpose-built overview grid */}
+        <H2>🔬 AWS Purpose-Built Databases</H2>
+        <div style={{ background: "#263238", borderRadius: 10, padding: "12px 14px", marginTop: 8 }}>
+          <div style={{ fontWeight: 700, fontSize: 12, color: accent, marginBottom: 10 }}>
+            💡 AWS Principle: Choose the database that fits your data — don't force your data to fit the database.
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+            {[
+              { icon: "📄", name: "DocumentDB", color: "#FF9900", type: "Document DB", shape: "JSON documents with dynamic schemas", use: "Content management, user profiles, catalogs" },
+              { icon: "🕸️", name: "Neptune", color: "#6a1b9a", type: "Graph DB", shape: "Nodes and edges (relationships)", use: "Social networks, fraud detection, recommendations" },
+              { icon: "⏱️", name: "Timestream", color: "#0f9d58", type: "Time-Series DB", shape: "Timestamped data points over time", use: "IoT sensor data, app metrics, financial data" },
+              { icon: "📒", name: "Managed Blockchain", color: "#1a73e8", type: "Blockchain", shape: "Immutable distributed ledger", use: "Supply chain tracking, financial compliance" },
+              { icon: "💰", name: "Quantum Ledger DB (QLDB)", color: "#d32f2f", type: "Ledger DB", shape: "Append-only, cryptographically verified history", use: "Banking transactions, audit trails" },
+              { icon: "⚡", name: "DynamoDB DAX", color: "#546e7a", type: "In-Memory Accelerator", shape: "Microsecond cache on top of DynamoDB", use: "When DynamoDB ms latency is still too slow" },
+            ].map(({ icon, name, color, type, shape, use }) => (
+              <div key={name} style={{ background: color + "18", border: `1px solid ${color}40`, borderRadius: 8, padding: "10px 10px" }}>
+                <div style={{ fontSize: 20, marginBottom: 4 }}>{icon}</div>
+                <div style={{ fontWeight: 700, fontSize: 11.5, color, marginBottom: 3 }}>{name}</div>
+                <div style={{ fontSize: 9.5, color: "rgba(255,255,255,0.5)", marginBottom: 5 }}>{type}</div>
+                <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.7)", lineHeight: 1.4, marginBottom: 4 }}><b style={{ color }}>Shape:</b> {shape}</div>
+                <div style={{ fontSize: 10.5, color: "rgba(255,255,255,0.6)", lineHeight: 1.4 }}><b style={{ color }}>Use:</b> {use}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* DocumentDB Deep Dive */}
+        <H2>📄 Amazon DocumentDB — Semi-Structured / JSON Data</H2>
+        <div style={{ border: "1px solid #FF990030", borderRadius: 10, overflow: "hidden", marginTop: 6 }}>
+          <div style={{ background: "#FF9900", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>📄</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>Amazon DocumentDB (with MongoDB compatibility)</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>For data with complex, varied attributes that don't fit neatly into tables</div>
+            </div>
+          </div>
+          <div style={{ padding: "12px 14px", background: "white" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 13, color: "#555", lineHeight: 1.65, marginBottom: 10 }}>
+                  DocumentDB stores data as <b>JSON-like documents</b> instead of rows and columns.
+                  Each document can have a completely different structure.
+                  Compatible with MongoDB — existing MongoDB code works without changes.
+                </div>
+                <div style={{ background: "#1e1e1e", borderRadius: 8, padding: "10px 12px", fontFamily: "monospace" }}>
+                  <div style={{ fontSize: 9, color: "#888", marginBottom: 6 }}>// DocumentDB document example</div>
+                  <div style={{ fontSize: 10.5, color: "#4EC9B0" }}>{`{`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 12 }}>{`"user_id": "u_001",`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 12 }}>{`"name": "Sarah Kim",`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 12 }}>{`"preferences": {`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 24 }}>{`"theme": "dark",`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 24 }}>{`"language": "en",`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 24 }}>{`"notifications": ["email","push"]`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 12 }}>{`},`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 12 }}>{`"orders": [101, 205, 312],`}</div>
+                  <div style={{ fontSize: 10.5, color: "#CE9178", marginLeft: 12 }}>{`"loyalty_tier": "Gold"`}</div>
+                  <div style={{ fontSize: 10.5, color: "#4EC9B0" }}>{`}`}</div>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 6 }}>✅ Key Features</div>
+                <KV rows={[
+                  ["MongoDB compat.", "Use existing MongoDB drivers, tools, and code with zero changes", "#FF9900"],
+                  ["Auto-scale", "Storage grows automatically to 64TB in 10GB increments", "#0f9d58"],
+                  ["Read replicas", "Up to 15 replicas for high read throughput", "#1a73e8"],
+                  ["Flexible schema", "Iterate rapidly — add/remove fields without schema migrations", "#6a1b9a"],
+                ]} />
+                <div style={{ marginTop: 10, background: "#FFF3E0", borderRadius: 8, padding: "9px 12px" }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#CC7A00", marginBottom: 4 }}>🎯 Real Example</div>
+                  <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>
+                    A streaming platform stores user profiles in DocumentDB.
+                    Each user has different watch history, preferences, and subscription details —
+                    a rigid RDS table would need dozens of columns, most empty.
+                    DocumentDB stores each profile as one rich JSON document. Schema changes take seconds.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Neptune Deep Dive */}
+        <H2>🕸️ Amazon Neptune — Graph Database</H2>
+        <div style={{ border: "1px solid #6a1b9a30", borderRadius: 10, overflow: "hidden", marginTop: 6 }}>
+          <div style={{ background: "#6a1b9a", padding: "10px 14px", display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ fontSize: 22 }}>🕸️</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 13, color: "white" }}>Amazon Neptune</div>
+              <div style={{ fontSize: 11, color: "rgba(255,255,255,0.85)" }}>For highly connected data — relationships are the data</div>
+            </div>
+          </div>
+          <div style={{ padding: "12px 14px", background: "white" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <div>
+                <div style={{ fontSize: 13, color: "#555", lineHeight: 1.65, marginBottom: 8 }}>
+                  Neptune stores data as <b>nodes (entities) and edges (relationships)</b>.
+                  It answers questions like <em>"Who knows who?"</em> or <em>"What products do people who bought X also buy?"</em>
+                  — queries that are painfully slow in relational databases.
+                </div>
+                {/* Graph diagram */}
+                <div style={{ background: "#1a1a2e", borderRadius: 9, padding: "12px", border: "1px solid #9c27b040" }}>
+                  <div style={{ fontSize: 10, color: "#ce93d8", fontWeight: 700, marginBottom: 8, textAlign: "center" }}>Social Network Graph</div>
+                  <div style={{ position: "relative", height: 100, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ display: "flex", gap: 20, alignItems: "center", flexWrap: "wrap", justifyContent: "center" }}>
+                      {[
+                        { label: "Alice", connects: ["Bob", "Carol"] },
+                        { label: "Bob", connects: [] },
+                        { label: "Carol", connects: ["Dave"] },
+                        { label: "Dave", connects: [] },
+                      ].map(({ label }) => (
+                        <div key={label} style={{ background: "#9c27b030", border: "2px solid #9c27b0", borderRadius: "50%", width: 38, height: 38, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 9.5, color: "#ce93d8", fontWeight: 700 }}>{label}</div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginTop: 4 }}>
+                    {["Alice → KNOWS → Bob", "Alice → KNOWS → Carol", "Carol → KNOWS → Dave"].map(rel => (
+                      <span key={rel} style={{ fontSize: 9, color: "#888", background: "#ffffff10", borderRadius: 10, padding: "2px 8px" }}>{rel}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 6 }}>✅ Key Facts</div>
+                <KV rows={[
+                  ["Data model", "Nodes (entities) + Edges (relationships) + Properties", "#6a1b9a"],
+                  ["Performance", "Billions of relationships in milliseconds", "#0f9d58"],
+                  ["Auto-scale", "Storage grows to 64TB automatically", "#FF9900"],
+                  ["High availability", "Automatic failover + backups", "#1a73e8"],
+                ]} />
+                <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 5 }}>
+                  <div style={{ fontWeight: 700, fontSize: 11, color: "#6a1b9a", marginBottom: 3 }}>🎯 Best Use Cases:</div>
+                  {[
+                    "Social networks — map connections, mutual friends",
+                    "Fraud detection — suspicious connection patterns",
+                    "Product recommendations — 'people who bought X...'",
+                    "Knowledge graphs — connecting concepts and entities",
+                  ].map(u => (
+                    <div key={u} style={{ fontSize: 12, color: "#555", paddingLeft: 8, borderLeft: "2px solid #9c27b040" }}>• {u}</div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* DynamoDB DAX */}
+        <H2>⚡ DynamoDB Accelerator (DAX) — Microsecond Caching</H2>
+        <div style={{ background: "#f9f9f9", borderRadius: 10, padding: "14px", border: "1px solid #e0e0e0", marginTop: 6 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div>
+              <div style={{ fontSize: 13, color: "#555", lineHeight: 1.65 }}>
+                DAX is a <b>built-in in-memory cache</b> designed specifically for DynamoDB.
+                It reduces read latency from single-digit milliseconds to <b>microseconds</b>
+                — that's up to 10× faster — with no application code changes.
+              </div>
+              <div style={{ marginTop: 10, background: "#1a1a2e", borderRadius: 8, padding: "12px" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
+                  {[
+                    { icon: "🖥️", label: "App" },
+                    { icon: "→", arrow: true },
+                    { icon: "⚡", label: "DAX(μs)" },
+                    { icon: "→", arrow: true },
+                    { icon: "🚀", label: "DynamoDB(ms)" },
+                  ].map(({ icon, label, arrow }, i) => (
+                    arrow
+                      ? <div key={i} style={{ color: "#546e7a", fontSize: 14 }}>{icon}</div>
+                      : <div key={i} style={{ textAlign: "center", background: "#546e7a20", border: "1px solid #546e7a50", borderRadius: 7, padding: "6px 9px" }}>
+                          <div style={{ fontSize: 16 }}>{icon}</div>
+                          {label.split("").map((l, j) => <div key={j} style={{ fontSize: 9, color: "#90a4ae" }}>{l}</div>)}
+                        </div>
+                  ))}
+                </div>
+                <div style={{ marginTop: 8, fontSize: 10.5, color: "rgba(255,255,255,0.6)", textAlign: "center" }}>
+                  DAX checks its cache first. Cache hit = microseconds. Cache miss = DynamoDB (ms) then caches result.
+                </div>
+              </div>
+            </div>
+            <div>
+              <KV rows={[
+                ["Latency", "Milliseconds → Microseconds (up to 10× faster)", "#546e7a"],
+                ["Code change?", "None — DAX is API-compatible with DynamoDB", "#0f9d58"],
+                ["Use when", "DynamoDB reads are a bottleneck. Read-heavy workloads.", "#FF9900"],
+                ["NOT for", "Write-heavy workloads — DAX accelerates reads only", "#d32f2f"],
+              ]} />
+              <div style={{ marginTop: 8, background: "#f5f5f5", borderRadius: 7, padding: "8px 10px" }}>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#546e7a", marginBottom: 3 }}>💡 DAX vs ElastiCache</div>
+                <div style={{ fontSize: 12, color: "#555", lineHeight: 1.55 }}>
+                  <b>DAX</b> = cache for DynamoDB only. Auto-integrates. API-compatible.<br />
+                  <b>ElastiCache</b> = general cache for RDS, custom apps, any data source.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <Callout icon="🎯" label="Exam Tip"
+          text="DocumentDB = MongoDB-compatible, semi-structured JSON documents. Neptune = graph DB for relationship data (social networks, fraud detection). DAX = microsecond cache for DynamoDB (reads only, no code change). Timestream = time-series data. QLDB = immutable ledger (banking audit trails). AWS principle: purpose-built databases — use the right tool for the data shape." color="#FF9900" />
+      </div>
+    );
+
+    case "backup": return (
+      <div>
+        <Body>
+          AWS Backup provides a <b>single centralised service</b> to manage backups across all your
+          AWS resources — EBS volumes, RDS databases, DynamoDB tables, EFS file systems,
+          and even on-premises servers — from one dashboard.
+        </Body>
+
+        {/* The problem it solves */}
+        <H2>🧩 The Problem AWS Backup Solves</H2>
+        <div style={{ background: "#1a1a2e", borderRadius: 12, padding: 16, marginTop: 8, border: "2px solid #546e7a" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+            <div style={{ background: "#d32f2f15", border: "2px solid #d32f2f", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#ef9a9a", marginBottom: 8 }}>❌ Without AWS Backup</div>
+              {[
+                ["EBS volumes", "Amazon Data Lifecycle Manager (DLM)"],
+                ["RDS databases", "RDS automated backups + snapshots"],
+                ["DynamoDB tables", "DynamoDB on-demand backups"],
+                ["EFS file systems", "EFS lifecycle policies"],
+                ["EC2 instances", "AWS Backup or AMIs"],
+                ["On-premises servers", "Third-party tools"],
+              ].map(([resource, tool]) => (
+                <div key={resource} style={{ display: "flex", justifyContent: "space-between", fontSize: 10.5, color: "rgba(255,255,255,0.6)", marginBottom: 4, padding: "3px 0", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                  <span style={{ color: "#ef9a9a" }}>{resource}</span>
+                  <span style={{ color: "#888" }}>→ {tool}</span>
+                </div>
+              ))}
+              <div style={{ marginTop: 6, fontSize: 10.5, color: "#d32f2f", fontWeight: 700 }}>6 different backup systems to manage!</div>
+            </div>
+            <div style={{ background: "#546e7a15", border: "2px solid #90a4ae", borderRadius: 10, padding: 12 }}>
+              <div style={{ fontWeight: 700, fontSize: 12, color: "#90a4ae", marginBottom: 8 }}>✅ With AWS Backup</div>
+              <div style={{ background: "#546e7a30", border: "1px solid #90a4ae50", borderRadius: 8, padding: 10, textAlign: "center", marginBottom: 8 }}>
+                <div style={{ fontSize: 22, marginBottom: 4 }}>🛡️</div>
+                <div style={{ fontWeight: 700, fontSize: 11, color: "#90a4ae" }}>AWS Backup</div>
+                <div style={{ fontSize: 9, color: "#888" }}>One dashboard, one policy</div>
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                {["EBS volumes", "RDS databases", "DynamoDB tables", "EFS file systems", "EC2 instances", "On-premises (via Storage Gateway)"].map(r => (
+                  <div key={r} style={{ display: "flex", gap: 6, fontSize: 10.5, color: "rgba(255,255,255,0.7)" }}>
+                    <span style={{ color: "#4caf50" }}>✓</span>{r}
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 6, fontSize: 10.5, color: "#4caf50", fontWeight: 700 }}>1 centralised backup system ✅</div>
+            </div>
+          </div>
+        </div>
+
+        <H2>AWS Backup — Key Features</H2>
+        <KV rows={[
+          ["Centralised", "Single dashboard to monitor, manage, and restore backups across all services and accounts.", "#546e7a"],
+          ["Automated schedules", "Set policies once — AWS Backup automatically protects new resources as they're created.", "#0f9d58"],
+          ["Cross-region", "Replicate backups to another AWS Region automatically for disaster recovery.", "#1a73e8"],
+          ["Encryption", "Backups encrypted at rest and in transit. Integrated with AWS KMS.", "#d32f2f"],
+          ["Compliance reports", "Detailed audit logs. Prove backup policies are being followed for regulatory compliance.", "#FF9900"],
+          ["On-premises too", "Back up servers outside AWS (via Storage Gateway) — same dashboard.", "#6a1b9a"],
+        ]} />
+
+        <H2>🎯 Real-World Example — Healthcare System</H2>
+        <div style={{ background: "#e8f5e9", borderRadius: 10, padding: "14px", border: "1px solid #4caf5040", marginTop: 6 }}>
+          <div style={{ fontWeight: 700, fontSize: 13, color: "#2e7d32", marginBottom: 8 }}>🏥 Hospital IT — Patient Records Backup Strategy</div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#2e7d32", marginBottom: 5 }}>What needs backing up:</div>
+              {[
+                "RDS (patient records database)",
+                "DynamoDB (appointment scheduling)",
+                "EBS volumes (imaging server drives)",
+                "EFS (shared radiology files)",
+                "On-premises servers (legacy systems)",
+              ].map(i => <div key={i} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>📁 {i}</div>)}
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 11, color: "#2e7d32", marginBottom: 5 }}>AWS Backup policy:</div>
+              {[
+                "Daily backup — all resources — 35-day retention",
+                "Weekly cross-region backup to eu-west-1",
+                "Encrypted with hospital-managed KMS key",
+                "Compliance report generated monthly",
+                "New resources protected automatically",
+              ].map(i => <div key={i} style={{ fontSize: 12, color: "#555", marginBottom: 3 }}>✅ {i}</div>)}
+            </div>
+          </div>
+          <div style={{ marginTop: 10, background: "#2e7d3215", borderRadius: 7, padding: "8px 12px", fontSize: 12, color: "#2e7d32", fontWeight: 600 }}>
+            Result: One IT administrator manages all backup compliance from a single dashboard.
+            No more 6 separate tools, no missed resources, no audit failures.
+          </div>
+        </div>
+
+        <Callout icon="🎯" label="Exam Tip"
+          text="AWS Backup = centralised backup management across EBS, EFS, RDS, DynamoDB, EC2, and on-premises. Single dashboard, automated policies, cross-region replication. Eliminates managing separate backup tools for each service. Audit logs for compliance. Key benefit: consistency and reduced complexity." color="#546e7a" />
       </div>
     );
 
