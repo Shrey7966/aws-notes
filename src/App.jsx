@@ -6,6 +6,7 @@ import Module4 from "./Module4";
 import Module5 from "./Module5";
 import Module6 from "./Module6";
 import Module7 from "./Module7";
+import Module99 from "./Module99";
 
 const accent = "#FF9900";
 
@@ -18,6 +19,7 @@ const modules = [
   { id: 6, emoji: "💾", title: "Module 6", subtitle: "Storage", topics: ["Amazon S3", "EBS", "EFS", "S3 Classes", "Glacier", "Storage Gateway"], color: "#00838f", status: "complete", component: Module6 },
   { id: 7, emoji: "🗃️", title: "Module 7", subtitle: "Databases", topics: ["RDS", "DynamoDB", "Aurora", "Redshift", "ElastiCache", "DMS"], color: "#e65100", status: "complete", component: Module7 },
   { id: 8, emoji: "💰", title: "Module 8", subtitle: "Pricing, Support & Billing", topics: ["Pricing Models", "Cost Explorer", "Budgets", "Support Plans", "Trusted Advisor", "Free Tier"], color: "#2e7d32", status: "coming", component: null },
+  { id: 9, emoji: "💰", title: "Module 99", subtitle: "Microservices_Notes", color: "#2e7d32", component: Module99 },
 ];
 
 const completedCount = modules.filter(m => m.status === "complete").length;
